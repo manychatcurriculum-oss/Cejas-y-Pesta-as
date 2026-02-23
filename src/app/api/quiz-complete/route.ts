@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { sendQuizCompletionNotification } from "@/lib/email";
 import { appendQuizEntry } from "@/lib/quiz-storage";
 
 export async function POST(req: Request) {
   try {
-    const { answers, bmiResult, personalizedTips } = await req.json();
+    const { answers, bmiResult } = await req.json();
 
     if (!answers) {
       return NextResponse.json(
@@ -20,13 +19,11 @@ export async function POST(req: Request) {
       console.error("Failed to persist quiz entry:", e);
     }
 
-    await sendQuizCompletionNotification(answers, bmiResult, personalizedTips);
-
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error sending quiz completion notification:", error);
+    console.error("Error in quiz-complete:", error);
     return NextResponse.json(
-      { error: "Failed to send notification" },
+      { error: "Failed to process quiz" },
       { status: 500 }
     );
   }

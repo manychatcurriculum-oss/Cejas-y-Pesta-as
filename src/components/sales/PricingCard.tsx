@@ -103,8 +103,8 @@ export default function PricingCard({ onCheckout, loading }: PricingCardProps) {
             <span>Pago seguro</span>
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-400">
-            <span>💳</span>
-            <span>MercadoPago</span>
+            <span>🛍️</span>
+            <span>Tienda Nube</span>
           </div>
         </div>
       </div>

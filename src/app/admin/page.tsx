@@ -13,6 +13,7 @@ type Tab = "resumen" | "quizzes" | "ventas" | "patrones";
 
 interface Stats {
   totalQuizzes: number;
+  totalCheckouts: number;
   totalSales: number;
   conversionRate: number;
   totalRevenue: number;
@@ -164,6 +165,7 @@ export default function AdminPage() {
         <div className="space-y-6">
           <OverviewCards
             totalQuizzes={stats.totalQuizzes}
+            totalCheckouts={stats.totalCheckouts}
             totalSales={stats.totalSales}
             conversionRate={stats.conversionRate}
             totalRevenue={stats.totalRevenue}

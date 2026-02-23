@@ -90,6 +90,7 @@ export default function Step20Sales() {
   const handleCheckout = (plan: "basico" | "acelerado" = "acelerado") => {
     const price = plan === "acelerado" ? COMBO_PRICE : PRICE;
     trackBeginCheckout(price);
+    fetch("/api/track-checkout", { method: "POST" }).catch(() => {});
     window.location.href = "https://ndprod.mitiendanube.com/productos/gelatina-fit-plan-acelerado-f7i1u/";
   };
 

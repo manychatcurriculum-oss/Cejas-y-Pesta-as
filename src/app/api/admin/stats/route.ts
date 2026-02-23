@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { getQuizEntries } from "@/lib/quiz-storage";
 import { fetchTNOrders } from "@/lib/tiendanube";
 import { ageToRange } from "@/lib/label-map";
+import { supabase } from "@/lib/supabase";
 
 let cachedStats: { data: unknown; fetchedAt: number } | null = null;
 const CACHE_TTL = 60_000;
@@ -17,6 +18,18 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const from = url.searchParams.get("from") || "2026-01-01";
     const to = url.searchParams.get("to") || undefined;
+
+    // Get checkout events count from 2026
+    let totalCheckouts = 0;
+    try {
+      const { count } = await supabase
+        .from("checkout_events")
+        .select("*", { count: "exact", head: true })
+        .gte("timestamp", from || "2026-01-01");
+      totalCheckouts = count || 0;
+    } catch (e) {
+      console.error("Failed to fetch checkout events:", e);
+    }
 
     // Get quizzes
     let quizzes = await getQuizEntries();
@@ -94,6 +107,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       totalQuizzes,
+      totalCheckouts,
       totalSales,
       conversionRate: Math.round(conversionRate * 10) / 10,
       totalRevenue,

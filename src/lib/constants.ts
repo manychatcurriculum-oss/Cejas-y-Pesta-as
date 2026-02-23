@@ -14,7 +14,7 @@ export const TEA_ORIGINAL_PRICE = 6999;
 // All deliverables with images and drive links
 export const ALL_DELIVERABLES = [
   { name: "Gelatina Fit — Plan Personalizado", icon: "⚖️", image: "/images/entregables/gelatina-fit-plan-personalizado.webp", driveUrl: "https://drive.google.com/file/d/1tAQXUphWL0N7Y0BAdgOB2LQPjp8Djo0Z/view?usp=drive_link", main: true },
-  { name: "Té Mounjaro Japonés", icon: "🍵", image: "/images/entregables/te-mounjaro-japones.webp", driveUrl: "https://drive.google.com/file/d/1q2sZpaIW93gnozM_6irwHi4OBZ8Nd7zp/view?usp=drive_link", highlighted: true },
+  { name: "Té Mounjaro Japonés", icon: "🍵", image: "/images/entregables/te-mounjaro-japones.webp", driveUrl: "https://drive.google.com/file/d/1lEoBbTagJxZzlVLp1waHPzgAbkafh-Gi/view?usp=drive_link", highlighted: true },
   { name: "Acelerador de Metabolismo", icon: "🧬", image: "/images/entregables/acelerador-de-metabolismo.webp", driveUrl: "https://drive.google.com/file/d/1K2IKo8V2sX_ZRvsDdy2Wz4_wHc_T3HHJ/view?usp=drive_link", bonus: true },
   { name: "Definición de Metas Diarias", icon: "🎯", image: "/images/entregables/definicion-de-metas-diarias.webp", driveUrl: "https://drive.google.com/file/d/107LG5cQjJjxr1sDLQ_x4J1b2tTLhGMB9/view?usp=drive_link", bonus: true },
   { name: "Plan de Alimentación Personalizado", icon: "🥗", image: "/images/entregables/plan-de-alimentacion-personalizado.webp", driveUrl: "https://drive.google.com/file/d/15vfYM9_HtgW0Soh-yFSgPojlCnllZlYH/view?usp=drive_link", bonus: true },
@@ -27,7 +27,7 @@ export const ALL_DELIVERABLES = [
   { name: "Detox para Cambiar tu Vida", icon: "🌱", image: "/images/entregables/detox-para-cambiar-tu-vida.webp", driveUrl: "https://drive.google.com/file/d/1feUzyqXziP2Du1r6z5DDXcipfGakC5Am/view?usp=drive_link" },
   { name: "Detox con Med", icon: "💊", image: "/images/entregables/detox-con-med.webp", driveUrl: "https://drive.google.com/file/d/1KTVjQkaSSieYBmZxBXlVzDCxW0mN260b/view?usp=drive_link" },
   { name: "21 Jugos Detox", icon: "🍹", image: "/images/entregables/21-jugos-detox.webp", driveUrl: "https://drive.google.com/file/d/1XKbg_GKR3KRmtSRjeyYydUcIXuW5kMVW/view?usp=drive_link" },
-  { name: "21 Jugos Detox para Perder Peso", icon: "🔥", image: "/images/entregables/21-jugos-detox-para-perder-peso.webp", driveUrl: "https://drive.google.com/drive/folders/1HBS-G_h-a1_tl1Obxmn3neCd5c3Qdes-?usp=sharing" },
+  { name: "21 Jugos Detox para Perder Peso", icon: "🔥", image: "/images/entregables/21-jugos-detox-para-perder-peso.webp", driveUrl: "https://drive.google.com/file/d/1bPOsmmWACIW3jPq8FPbOFiQ4bWF8CsJI/view?usp=drive_link" },
 ];
 
 // Backward compat

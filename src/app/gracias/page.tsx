@@ -207,12 +207,12 @@ function GraciasContent() {
                   <p className="text-pink-50 text-sm">
                     Nuestro equipo de soporte está listo para acompañarte. Escribinos a:
                     <br />
-                    <span className="font-bold underline">gelatinafitdetox@gmail.com</span>
+                    <span className="font-bold underline">gelatinafit@gmail.com</span>
                   </p>
                   <Button
                     variant="outline"
                     className="border-white text-white hover:bg-white hover:text-pink-600 w-full"
-                    onClick={() => window.location.href = "mailto:gelatinafitdetox@gmail.com"}
+                    onClick={() => window.location.href = "mailto:gelatinafit@gmail.com"}
                   >
                     Enviar Email de Soporte
                   </Button>

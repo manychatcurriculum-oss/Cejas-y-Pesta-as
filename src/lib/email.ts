@@ -10,38 +10,109 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendDeliveryEmail(to: string, name: string) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gelatina-delta.vercel.app";
+
   const mailOptions = {
     from: `"Gelatina Fit" <${process.env.GMAIL_USER}>`,
     to,
     bcc: process.env.GMAIL_USER,
-    subject: `¡Aquí tienes tu Plan Personalizado, ${name}! 🥗`,
+    subject: `¡Tu Plan Acelerado Gelatina Fit está listo, ${name}! 🎉`,
     html: `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #fce7f3; border-radius: 24px; overflow: hidden; background-color: #fff;">
-        <div style="background-color: #db2777; padding: 40px 20px; text-align: center; color: white;">
-          <h1 style="margin: 0; font-size: 28px;">¡Muchas gracias por tu compra!</h1>
-          <p style="margin-top: 10px; font-size: 18px; opacity: 0.9;">Tu transformación con Gelatina Fit empieza ahora.</p>
-        </div>
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0; padding:0; background-color:#fdf2f8;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#fdf2f8; padding:24px 16px;">
+  <tr><td align="center">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; background-color:#ffffff; border-radius:24px; overflow:hidden; border:1px solid #fce7f3;">
 
-        <div style="padding: 30px; color: #374151; line-height: 1.6;">
-          <p>Hola <strong>${name}</strong>,</p>
-          <p>Estamos muy felices de acompañarte en este camino. Ya tenés acceso inmediato a todo tu material en nuestra área exclusiva de miembros.</p>
+    <!-- HEADER -->
+    <tr>
+      <td style="background:linear-gradient(135deg,#ec4899,#db2777); padding:40px 24px; text-align:center;">
+        <p style="margin:0 0 6px 0; font-family:sans-serif; font-size:12px; color:rgba(255,255,255,0.75); letter-spacing:2px; text-transform:uppercase;">Plan Acelerado</p>
+        <h1 style="margin:0; font-family:sans-serif; font-size:32px; font-weight:900; color:#ffffff;">Gelatina Fit 🌸</h1>
+        <p style="margin:12px 0 0 0; font-family:sans-serif; font-size:16px; color:rgba(255,255,255,0.9);">¡Compra confirmada! Tu material está listo.</p>
+      </td>
+    </tr>
 
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="https://gelatina-delta.vercel.app/gracias" style="background-color: #db2777; color: white; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block; font-size: 18px; box-shadow: 0 4px 15px rgba(219, 39, 119, 0.3);">🚀 ACCEDER AL ÁREA DE MIEMBROS</a>
-          </div>
+    <!-- BODY -->
+    <tr>
+      <td style="padding:32px 24px; font-family:sans-serif; color:#374151;">
+        <p style="margin:0 0 8px 0; font-size:20px; font-weight:700; color:#1f2937;">Hola ${name} 👋</p>
+        <p style="margin:0 0 28px 0; font-size:15px; color:#6b7280; line-height:1.7;">
+          ¡Bienvenida a tu transformación! Tu <strong style="color:#db2777;">Plan Acelerado Gelatina Fit</strong> está disponible ahora mismo. Hacé clic en el botón para acceder a todos tus recursos.
+        </p>
 
-          <div style="background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-            <p style="margin: 0; font-size: 14px;"><strong>¿Necesitas ayuda?</strong> Si tienes problemas con las descargas o alguna duda técnica, contáctanos respondiendo este mail.</p>
-          </div>
+        <!-- CTA -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center" style="padding:8px 0 28px 0;">
+              <a href="${siteUrl}/gracias"
+                style="display:inline-block; background:linear-gradient(135deg,#ec4899,#db2777); color:#ffffff; font-family:sans-serif; font-size:18px; font-weight:800; text-decoration:none; padding:18px 40px; border-radius:50px; box-shadow:0 4px 20px rgba(219,39,119,0.35); letter-spacing:0.3px;">
+                🚀 Acceder a mis recursos ahora
+              </a>
+            </td>
+          </tr>
+        </table>
 
-          <hr style="border: 0; border-top: 1px solid #fce7f3; margin: 30px 0;">
+        <!-- WHAT'S INCLUDED -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#fdf2f8; border-radius:16px; border:1px solid #fce7f3;">
+          <tr>
+            <td style="padding:20px 20px 12px 20px;">
+              <p style="margin:0 0 14px 0; font-size:13px; font-weight:700; color:#db2777; text-transform:uppercase; letter-spacing:1px;">Lo que vas a encontrar:</p>
+              ${[
+                "⚖️ Gelatina Fit — Plan Personalizado",
+                "🍵 Té Mounjaro Japonés (Premium)",
+                "🧬 Acelerador de Metabolismo",
+                "🎯 Definición de Metas Diarias",
+                "🥗 Plan de Alimentación Personalizado",
+                "🛡️ Protocolo Anti Efecto Rebote",
+                "💧 Protocolo 7 Días para Desinflamar",
+                "⚡ Protocolo Anti Procrastinación",
+                "🥣 Recetas Detox para Deshinchar",
+                "📅 Dieta Detox 21 Días",
+                "🥤 Jugos y Energizantes Naturales",
+                "🌱 Detox para Cambiar tu Vida",
+                "💊 Detox con Med",
+                "🍹 21 Jugos Detox",
+                "🔥 21 Jugos Detox para Perder Peso",
+              ].map(item => `
+              <p style="margin:0 0 8px 0; font-size:14px; color:#374151;">✓ ${item}</p>
+              `).join("")}
+            </td>
+          </tr>
+        </table>
 
-          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
-            &copy; ${new Date().getFullYear()} Gelatina Fit. Has recibido este correo porque realizaste una compra en nuestro sitio.
-          </p>
-        </div>
-      </div>
-    `,
+        <!-- GUARANTEE -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px; background-color:#f0fdf4; border-radius:14px; border:1px solid #bbf7d0;">
+          <tr>
+            <td style="padding:16px 20px; font-family:sans-serif;">
+              <p style="margin:0 0 4px 0; font-size:14px; font-weight:700; color:#166534;">🛡️ Garantía de satisfacción 30 días</p>
+              <p style="margin:0; font-size:13px; color:#16a34a; line-height:1.6;">Si por cualquier razón no estás satisfecha, te devolvemos el 100% de tu dinero. Respondé este email y lo resolvemos.</p>
+            </td>
+          </tr>
+        </table>
+
+        <p style="margin:24px 0 0 0; font-size:14px; color:#9ca3af; text-align:center;">
+          ¿Problemas con el acceso? Respondé este email y te ayudamos. 💌
+        </p>
+      </td>
+    </tr>
+
+    <!-- FOOTER -->
+    <tr>
+      <td style="background-color:#fdf2f8; padding:18px 24px; text-align:center; border-top:1px solid #fce7f3;">
+        <p style="margin:0; font-family:sans-serif; font-size:12px; color:#9ca3af;">
+          © ${new Date().getFullYear()} Gelatina Fit · Recibiste este email porque realizaste una compra en nuestro sitio.
+        </p>
+      </td>
+    </tr>
+
+  </table>
+  </td></tr>
+</table>
+</body>
+</html>`,
   };
 
   return transporter.sendMail(mailOptions);

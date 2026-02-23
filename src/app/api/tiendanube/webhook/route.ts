@@ -46,8 +46,26 @@ export async function POST(request: NextRequest) {
       if (order.payment_status === "paid" && order.contact_email) {
         const firstName = order.contact_name?.split(" ")[0] || "Cliente";
         processedOrders.add(orderId);
+
+        // 1. Mandar email con los recursos
         console.log("Sending delivery email to:", order.contact_email);
         await sendDeliveryEmail(order.contact_email, firstName);
+
+        // 2. Marcar el pedido como fulfillado en Tienda Nube (envío digital automático)
+        try {
+          await fetch(`https://api.tiendanube.com/v1/${STORE_ID}/orders/${orderId}/fulfill`, {
+            method: "POST",
+            headers: {
+              "Authentication": `bearer ${ACCESS_TOKEN}`,
+              "User-Agent": "NDPROD (curriculumfacill@gmail.com)",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ shipping_tracking_number: "DIGITAL", notify_customer: false }),
+          });
+          console.log("Order fulfilled:", orderId);
+        } catch (e) {
+          console.error("Failed to fulfill order:", e);
+        }
       }
     }
 

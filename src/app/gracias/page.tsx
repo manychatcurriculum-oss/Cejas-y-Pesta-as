@@ -1,49 +1,17 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { trackPurchase } from "@/lib/analytics";
-import { PRODUCT_NAME, PRICE, ALL_DELIVERABLES } from "@/lib/constants";
+import { useEffect, Suspense } from "react";
+import { PRODUCT_NAME, ALL_DELIVERABLES } from "@/lib/constants";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { useQuizStore } from "@/store/quizStore";
 
 function GraciasContent() {
-  const searchParams = useSearchParams();
-  const status = searchParams.get("status");
-  const isPending = status === "pending";
-
   const { name: storedName } = useQuizStore((state) => state.answers);
-  const [payerName, setPayerName] = useState<string | null>(null);
+  const displayName = storedName || "Cliente";
 
+  // Confetti effect
   useEffect(() => {
-    // Mercado Pago passes either payment_id or collection_id depending on the flow
-    const paymentId = searchParams.get("payment_id") || searchParams.get("collection_id");
-
-    // 1. Track Purchase in Analytics (Client-side)
-    if (!isPending) {
-      trackPurchase(PRICE);
-    }
-
-    // 2. Verify Payment and Trigger Automated Email using Mercado Pago data
-    if (!isPending && paymentId) {
-      fetch(`/api/checkout/verify?payment_id=${paymentId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            console.log("Payment verified and email sent to:", data.email);
-            if (data.name) setPayerName(data.name);
-          }
-        })
-        .catch(err => console.error("Verification failed:", err));
-    }
-  }, [isPending, searchParams]);
-
-  const displayName = payerName || storedName || "Cliente";
-
-  // Simple confetti effect
-  useEffect(() => {
-    if (isPending) return;
     const colors = ["#ec4899", "#f472b6", "#f9a8d4", "#fce7f3", "#fbbf24"];
     const confetti: HTMLDivElement[] = [];
 
@@ -80,7 +48,7 @@ function GraciasContent() {
       confetti.forEach((el) => el.remove());
       style.remove();
     };
-  }, [isPending]);
+  }, []);
 
   return (
     <div className="min-h-dvh bg-gradient-to-b from-pink-50 to-white pb-12">
@@ -88,139 +56,133 @@ function GraciasContent() {
       <div className="bg-white border-b border-pink-100 py-12 px-4 shadow-sm shadow-pink-500/5">
         <div className="max-w-2xl mx-auto text-center space-y-6">
           <div className="w-20 h-20 mx-auto rounded-full bg-pink-100 flex items-center justify-center animate-bounce">
-            <span className="text-4xl text-pink-600">{isPending ? "⏳" : "🎉"}</span>
+            <span className="text-4xl text-pink-600">🎉</span>
           </div>
 
           <h1 className="text-4xl font-extrabold text-gray-900 leading-tight">
-            {isPending ? "Procesando tu pago..." : "¡Tu transformación empieza hoy!"}
+            ¡Tu transformación empieza hoy!
           </h1>
 
           <p className="text-lg text-gray-600 max-w-lg mx-auto leading-relaxed">
-            {isPending
-              ? "Estamos confirmando tu pago. En unos minutos tendrás acceso a todo tu material."
-              : `¡Felicitaciones por dar el primer paso! Ya tenés acceso a todo tu material de ${PRODUCT_NAME}.`}
+            ¡Felicitaciones {displayName} por dar el primer paso! Ya tenés acceso a todo tu material de {PRODUCT_NAME}.
           </p>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mt-12 space-y-12">
-        {!isPending && (
-          <>
-            {/* All Deliverables with images */}
-            <div className="space-y-8">
-              <div className="text-center space-y-2">
-                <h2 className="text-3xl font-extrabold text-gray-900">Tus {ALL_DELIVERABLES.length} Recursos</h2>
-                <p className="text-gray-500">Todo tu material listo para descargar</p>
-              </div>
+        {/* All Deliverables with images */}
+        <div className="space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-extrabold text-gray-900">Tus {ALL_DELIVERABLES.length} Recursos</h2>
+            <p className="text-gray-500">Todo tu material listo para descargar</p>
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {ALL_DELIVERABLES.map((item) => (
-                  <div
-                    key={item.name}
-                    className={`group rounded-3xl overflow-hidden border flex flex-col transition-all hover:shadow-xl ${
-                      item.highlighted
-                        ? "border-pink-500 border-[3px] shadow-xl shadow-pink-500/15 md:col-span-2 lg:col-span-1"
-                        : item.main
-                        ? "border-pink-400 border-2 shadow-lg shadow-pink-500/10"
-                        : "border-pink-100 hover:border-pink-300 hover:shadow-pink-500/10"
-                    }`}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {ALL_DELIVERABLES.map((item) => (
+              <div
+                key={item.name}
+                className={`group rounded-3xl overflow-hidden border flex flex-col transition-all hover:shadow-xl ${
+                  item.highlighted
+                    ? "border-pink-500 border-[3px] shadow-xl shadow-pink-500/15 md:col-span-2 lg:col-span-1"
+                    : item.main
+                    ? "border-pink-400 border-2 shadow-lg shadow-pink-500/10"
+                    : "border-pink-100 hover:border-pink-300 hover:shadow-pink-500/10"
+                }`}
+              >
+                {/* Image */}
+                <div className={`relative w-full aspect-[3/4] ${
+                  item.highlighted ? "bg-gradient-to-br from-pink-100 to-pink-50" : item.main ? "bg-pink-50" : "bg-gray-50"
+                }`}>
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                  {item.highlighted && (
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                        Premium 🔥
+                      </span>
+                    </div>
+                  )}
+                  {item.main && (
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                        Plan Principal ⭐
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="p-5 flex flex-col flex-1 justify-between gap-4 bg-white">
+                  <h3 className={`text-lg font-bold leading-tight ${
+                    item.highlighted ? "text-pink-700" : "text-gray-900"
+                  }`}>
+                    {item.name}
+                  </h3>
+                  <Button
+                    onClick={() => window.open(item.driveUrl, "_blank")}
+                    variant={item.highlighted || item.main ? undefined : "outline"}
+                    className={
+                      item.highlighted || item.main
+                        ? "w-full"
+                        : "w-full border-pink-200 text-pink-600 hover:bg-pink-50"
+                    }
+                    pulse={item.highlighted || item.main}
                   >
-                    {/* Image */}
-                    <div className={`relative w-full aspect-[3/4] ${
-                      item.highlighted ? "bg-gradient-to-br from-pink-100 to-pink-50" : item.main ? "bg-pink-50" : "bg-gray-50"
-                    }`}>
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                      {item.highlighted && (
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
-                            Premium 🔥
-                          </span>
-                        </div>
-                      )}
-                      {item.main && (
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
-                            Plan Principal ⭐
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    {item.highlighted ? "Abrir Ahora 🔥" : item.main ? "Abrir Plan Principal →" : "Abrir PDF →"}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-                    {/* Content */}
-                    <div className="p-5 flex flex-col flex-1 justify-between gap-4 bg-white">
-                      <h3 className={`text-lg font-bold leading-tight ${
-                        item.highlighted ? "text-pink-700" : "text-gray-900"
-                      }`}>
-                        {item.name}
-                      </h3>
-                      <Button
-                        onClick={() => window.open(item.driveUrl, "_blank")}
-                        variant={item.highlighted || item.main ? undefined : "outline"}
-                        className={
-                          item.highlighted || item.main
-                            ? "w-full"
-                            : "w-full border-pink-200 text-pink-600 hover:bg-pink-50"
-                        }
-                        pulse={item.highlighted || item.main}
-                      >
-                        {item.highlighted ? "Abrir Ahora 🔥" : item.main ? "Abrir Plan Principal →" : "Abrir PDF →"}
-                      </Button>
-                    </div>
+        {/* Next Steps */}
+        <div className="bg-pink-600 rounded-[2.5rem] p-8 md:p-12 text-white overflow-hidden relative shadow-2xl shadow-pink-500/40">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+          <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-extrabold leading-tight">
+                ¿Qué tenés que hacer ahora?
+              </h2>
+              <div className="space-y-4">
+                {[
+                  "Revisá tu email (spam incluido) para el comprobante",
+                  "Descargá todos tus PDFs arriba",
+                  "Unite a nuestra comunidad en Instagram",
+                  "Mañana recibís tu primer tip por email",
+                ].map((step, i) => (
+                  <div key={step} className="flex items-start gap-4">
+                    <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold shrink-0">
+                      {i + 1}
+                    </span>
+                    <p className="text-pink-50/90 font-medium">{step}</p>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Next Steps / Dashboard Info */}
-            <div className="bg-pink-600 rounded-[2.5rem] p-8 md:p-12 text-white overflow-hidden relative shadow-2xl shadow-pink-500/40">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-              <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-6">
-                  <h2 className="text-3xl font-extrabold leading-tight">
-                    ¿Qué tenés que hacer ahora?
-                  </h2>
-                  <div className="space-y-4">
-                    {[
-                      "Revisá tu email (spam incluido) para el comprobante",
-                      "Descargá todos tus PDFs arriba",
-                      "Unite a nuestra comunidad en Instagram",
-                      "Mañana recibís tu primer tip por email",
-                    ].map((step, i) => (
-                      <div key={step} className="flex items-start gap-4">
-                        <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold shrink-0">
-                          {i + 1}
-                        </span>
-                        <p className="text-pink-50/90 font-medium">{step}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 text-center space-y-4">
-                  <div className="text-4xl">💬</div>
-                  <h3 className="text-xl font-bold">¿Necesitás ayuda?</h3>
-                  <p className="text-pink-50 text-sm">
-                    Nuestro equipo de soporte está listo para acompañarte. Escribinos a:
-                    <br />
-                    <span className="font-bold underline">gelatinafit@gmail.com</span>
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-pink-600 w-full"
-                    onClick={() => window.location.href = "mailto:gelatinafit@gmail.com"}
-                  >
-                    Enviar Email de Soporte
-                  </Button>
-                </div>
-              </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 text-center space-y-4">
+              <div className="text-4xl">💬</div>
+              <h3 className="text-xl font-bold">¿Necesitás ayuda?</h3>
+              <p className="text-pink-50 text-sm">
+                Nuestro equipo de soporte está listo para acompañarte. Escribinos a:
+                <br />
+                <span className="font-bold underline">gelatinafit@gmail.com</span>
+              </p>
+              <Button
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-pink-600 w-full"
+                onClick={() => window.location.href = "mailto:gelatinafit@gmail.com"}
+              >
+                Enviar Email de Soporte
+              </Button>
             </div>
-          </>
-        )}
+          </div>
+        </div>
 
         <div className="text-center">
           <button

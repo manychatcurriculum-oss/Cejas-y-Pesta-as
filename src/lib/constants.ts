@@ -241,7 +241,7 @@ export const FAQ_ITEMS = [
   {
     question: "¿Qué métodos de pago aceptan?",
     answer:
-      "Aceptamos todos los métodos de pago a través de MercadoPago: tarjeta de crédito, débito, transferencia bancaria, y efectivo en puntos de pago.",
+      "Aceptamos todos los métodos de pago a través de Tienda Nube: tarjeta de crédito, débito, transferencia bancaria y efectivo en puntos de pago. El pago está 100% protegido.",
   },
   {
     question: "¿Tiene garantía?",

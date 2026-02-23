@@ -42,7 +42,7 @@ export default function PaymentTable({ payments, total, page, totalPages, onPage
   return (
     <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
       <div className="p-4 border-b border-gray-800">
-        <h3 className="text-white font-semibold">Pagos MercadoPago ({total})</h3>
+        <h3 className="text-white font-semibold">Pagos Tienda Nube ({total})</h3>
       </div>
 
       <div className="overflow-x-auto">

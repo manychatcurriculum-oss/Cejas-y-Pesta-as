@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
   try {
     const url = new URL(request.url);
-    const from = url.searchParams.get("from") || undefined;
+    const from = url.searchParams.get("from") || "2026-01-01";
     const to = url.searchParams.get("to") || undefined;
 
     // Get quizzes

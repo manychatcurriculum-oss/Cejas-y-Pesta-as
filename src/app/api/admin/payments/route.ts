@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get("page") || "1");
     const limit = parseInt(url.searchParams.get("limit") || "20");
-    const from = url.searchParams.get("from") || undefined;
+    const from = url.searchParams.get("from") || "2026-01-01";
     const to = url.searchParams.get("to") || undefined;
 
     let allOrders;

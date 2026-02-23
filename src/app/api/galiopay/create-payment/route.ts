@@ -20,12 +20,12 @@ export async function POST(request: NextRequest) {
           title: "Gelatina Fit - Plan Acelerado",
           quantity: 1,
           unitPrice: PRICE,
-          currency: "ARS",
+          currencyId: "ARS",
         },
       ],
       referenceId,
       description: "Gelatina Fit - Plan Acelerado Digital",
-      callbackUrls: {
+      backUrl: {
         success: `${SITE_URL}/test/success?orderId=${referenceId}`,
         failure: `${SITE_URL}/test?error=1`,
       },

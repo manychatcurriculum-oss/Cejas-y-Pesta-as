@@ -20,10 +20,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export interface CreatePaymentLinkPayload {
-  items: { title: string; quantity: number; unitPrice: number; currency: string }[];
+  items: { title: string; quantity: number; unitPrice: number; currencyId: string }[];
   referenceId: string;
   description?: string;
-  callbackUrls: { success: string; failure: string };
+  backUrl: { success: string; failure: string };
 }
 
 export interface PaymentLinkResponse {

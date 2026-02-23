@@ -9,6 +9,7 @@ interface QuizEntry {
   timestamp: string;
   answers: QuizAnswers;
   bmiResult: BMIResult | null;
+  status?: "compro" | "checkout" | "sin_accion";
 }
 
 interface Props {
@@ -61,6 +62,7 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
               <th className="px-4 py-3 font-medium">Edad</th>
               <th className="px-4 py-3 font-medium">Tipo cuerpo</th>
               <th className="px-4 py-3 font-medium">IMC</th>
+              <th className="px-4 py-3 font-medium">Estado</th>
               <th className="px-4 py-3 font-medium"></th>
             </tr>
           </thead>
@@ -82,6 +84,15 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
                     {q.bmiResult ? (
                       <span style={{ color: q.bmiResult.color }}>{q.bmiResult.value}</span>
                     ) : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {q.status === "compro" ? (
+                      <span className="bg-green-500/20 text-green-400 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">✅ Compró</span>
+                    ) : q.status === "checkout" ? (
+                      <span className="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">🛒 Checkout</span>
+                    ) : (
+                      <span className="bg-gray-700 text-gray-400 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">— Sin acción</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-gray-500">{expandedId === q.id ? "▲" : "▼"}</td>
                 </tr>

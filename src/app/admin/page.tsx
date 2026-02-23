@@ -177,12 +177,21 @@ export default function AdminPage() {
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
               <h3 className="text-white font-semibold mb-3">Últimos quizzes</h3>
               <div className="space-y-2">
-                {(stats.recentQuizzes as Array<{ id: string; timestamp: string; answers: { name: string; age: string } }>).map((q) => (
-                  <div key={q.id} className="flex justify-between text-sm">
-                    <span className="text-gray-300">{q.answers.name || "Sin nombre"}</span>
-                    <span className="text-gray-500">
-                      {new Date(q.timestamp).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                    </span>
+                {(stats.recentQuizzes as Array<{ id: string; timestamp: string; answers: { name: string; age: string }; status?: string }>).map((q) => (
+                  <div key={q.id} className="flex justify-between items-center text-sm gap-2">
+                    <span className="text-gray-300 truncate">{q.answers.name || "Sin nombre"}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {q.status === "compro" ? (
+                        <span className="bg-green-500/20 text-green-400 text-xs font-bold px-1.5 py-0.5 rounded-full">Compró</span>
+                      ) : q.status === "checkout" ? (
+                        <span className="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-1.5 py-0.5 rounded-full">Checkout</span>
+                      ) : (
+                        <span className="bg-gray-700 text-gray-500 text-xs px-1.5 py-0.5 rounded-full">—</span>
+                      )}
+                      <span className="text-gray-500">
+                        {new Date(q.timestamp).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
                   </div>
                 ))}
                 {stats.recentQuizzes.length === 0 && (

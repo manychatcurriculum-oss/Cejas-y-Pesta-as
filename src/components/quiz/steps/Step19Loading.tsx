@@ -18,6 +18,7 @@ export default function Step19Loading() {
   const answers = useQuizStore((s) => s.answers);
   const bmiResult = useQuizStore((s) => s.bmiResult);
   const setPersonalizedTips = useQuizStore((s) => s.setPersonalizedTips);
+  const setQuizEntryId = useQuizStore((s) => s.setQuizEntryId);
   const name = answers.name;
   const [currentLoadingStep, setCurrentLoadingStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -71,7 +72,10 @@ export default function Step19Loading() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answers, bmiResult, personalizedTips: tipsData }),
-      }).catch(() => {});
+      })
+        .then((r) => r.json())
+        .then((data) => { if (data.quizId) setQuizEntryId(data.quizId); })
+        .catch(() => {});
 
       nextStep();
     }, totalDuration);

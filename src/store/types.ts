@@ -45,6 +45,7 @@ export interface QuizState {
   bmiResult: BMIResult | null;
   personalizedTips: PersonalizedTips | null;
   quizStartedAt: number | null;
+  quizEntryId: string | null;
 
   nextStep: () => void;
   setStep: (step: number) => void;
@@ -52,5 +53,6 @@ export interface QuizState {
   toggleArrayAnswer: (key: "fatZones" | "barriers" | "goals", value: string) => void;
   calculateBMI: () => void;
   setPersonalizedTips: (tips: PersonalizedTips) => void;
+  setQuizEntryId: (id: string) => void;
   resetQuiz: () => void;
 }

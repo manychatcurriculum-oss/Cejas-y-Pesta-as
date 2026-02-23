@@ -29,6 +29,7 @@ export const useQuizStore = create<QuizState>()(
       bmiResult: null,
       personalizedTips: null,
       quizStartedAt: null,
+      quizEntryId: null,
 
       nextStep: () => {
         const { currentStep } = get();
@@ -73,6 +74,10 @@ export const useQuizStore = create<QuizState>()(
         set({ personalizedTips: tips });
       },
 
+      setQuizEntryId: (id: string) => {
+        set({ quizEntryId: id });
+      },
+
       resetQuiz: () => {
         set({
           currentStep: 1,
@@ -80,6 +85,7 @@ export const useQuizStore = create<QuizState>()(
           bmiResult: null,
           personalizedTips: null,
           quizStartedAt: null,
+          quizEntryId: null,
         });
       },
     }),
@@ -91,6 +97,7 @@ export const useQuizStore = create<QuizState>()(
         bmiResult: state.bmiResult,
         personalizedTips: state.personalizedTips,
         quizStartedAt: state.quizStartedAt,
+        quizEntryId: state.quizEntryId,
       }),
     }
   )

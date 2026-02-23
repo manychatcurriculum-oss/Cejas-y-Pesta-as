@@ -13,13 +13,15 @@ export async function POST(req: Request) {
     }
 
     // Persist quiz entry for admin dashboard
+    let quizId: string | null = null;
     try {
-      await appendQuizEntry(answers, bmiResult);
+      const entry = await appendQuizEntry(answers, bmiResult);
+      quizId = entry.id;
     } catch (e) {
       console.error("Failed to persist quiz entry:", e);
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, quizId });
   } catch (error) {
     console.error("Error in quiz-complete:", error);
     return NextResponse.json(

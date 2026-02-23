@@ -96,7 +96,30 @@ export async function GET(request: Request) {
       if (a.goals) for (const g of a.goals) patterns.goals[g] = (patterns.goals[g] || 0) + 1;
     }
 
-    const recentQuizzes = quizzes.slice(-5).reverse();
+    // Fetch checkout events to tag recent quizzes
+    let checkoutQuizIds = new Set<string>();
+    try {
+      const { data } = await supabase
+        .from("checkout_events")
+        .select("quiz_id")
+        .not("quiz_id", "is", null);
+      checkoutQuizIds = new Set((data || []).map((e: { quiz_id: string }) => e.quiz_id));
+    } catch (e) {
+      console.error("Failed to fetch checkout events for stats:", e);
+    }
+
+    const purchasedFirstNames = new Set(
+      approvedOrders
+        .map((o) => (o.contact_name || "").trim().toLowerCase().split(" ")[0])
+        .filter(Boolean)
+    );
+
+    const recentQuizzes = quizzes.slice(-5).reverse().map((q) => {
+      const firstName = (q.answers.name || "").trim().toLowerCase();
+      const purchased = firstName.length > 0 && purchasedFirstNames.has(firstName);
+      const clickedCheckout = checkoutQuizIds.has(q.id);
+      return { ...q, status: purchased ? "compro" : clickedCheckout ? "checkout" : "sin_accion" };
+    });
     const recentPayments = approvedOrders.slice(0, 5).map((o) => ({
       id: o.id,
       status: "approved",

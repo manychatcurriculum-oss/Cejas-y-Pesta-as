@@ -84,13 +84,17 @@ function DeliveryBadge() {
 }
 
 export default function Step20Sales() {
-  const { answers, bmiResult } = useQuizStore();
+  const { answers, bmiResult, quizEntryId } = useQuizStore();
   const [loading] = useState(false);
 
   const handleCheckout = (plan: "basico" | "acelerado" = "acelerado") => {
     const price = plan === "acelerado" ? COMBO_PRICE : PRICE;
     trackBeginCheckout(price);
-    fetch("/api/track-checkout", { method: "POST" }).catch(() => {});
+    fetch("/api/track-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quiz_id: quizEntryId }),
+    }).catch(() => {});
     window.location.href = "https://ndprod.mitiendanube.com/productos/gelatina-fit-plan-acelerado-f7i1u/";
   };
 

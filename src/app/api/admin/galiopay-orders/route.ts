@@ -33,8 +33,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
   }
 
-  // Fetch total revenue across all pages (paid orders only)
+  // Fetch total paid count and revenue across all pages
   let totalRevenue = 0;
+  let totalPaid = 0;
   try {
     let revenueQuery = supabase
       .from("galiopay_orders")
@@ -47,6 +48,7 @@ export async function GET(request: Request) {
       revenueQuery = revenueQuery.lte("created_at", toDate.toISOString());
     }
     const { data: paidOrders } = await revenueQuery;
+    totalPaid = (paidOrders || []).length;
     totalRevenue = (paidOrders || []).reduce((sum, o) => sum + (o.amount || 0), 0);
   } catch (e) {
     console.error("Failed to fetch total revenue:", e);
@@ -58,5 +60,6 @@ export async function GET(request: Request) {
     page,
     totalPages: Math.ceil((count || 0) / limit),
     totalRevenue,
+    totalPaid,
   });
 }

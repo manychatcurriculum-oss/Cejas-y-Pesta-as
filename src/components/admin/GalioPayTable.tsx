@@ -20,6 +20,7 @@ interface Props {
   page: number;
   totalPages: number;
   totalRevenue: number;
+  totalPaid: number;
   onPageChange: (page: number) => void;
   password: string;
 }
@@ -36,7 +37,7 @@ function StatusBadge({ status }: { status: Order["status"] }) {
   );
 }
 
-export default function GalioPayTable({ orders, total, page, totalPages, totalRevenue, onPageChange, password }: Props) {
+export default function GalioPayTable({ orders, total, page, totalPages, totalRevenue, totalPaid, onPageChange, password }: Props) {
   const [sending, setSending] = useState<string | null>(null);
   const [sent, setSent] = useState<Set<string>>(new Set());
 
@@ -67,8 +68,8 @@ export default function GalioPayTable({ orders, total, page, totalPages, totalRe
           <p className="text-2xl font-bold text-white">{total}</p>
         </div>
         <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <p className="text-gray-400 text-sm">Pagadas (página)</p>
-          <p className="text-2xl font-bold text-green-400">{orders.filter((o) => o.status === "paid").length}</p>
+          <p className="text-gray-400 text-sm">Pagadas</p>
+          <p className="text-2xl font-bold text-green-400">{totalPaid}</p>
         </div>
         <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
           <p className="text-gray-400 text-sm">Ingresos totales</p>

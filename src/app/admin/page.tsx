@@ -225,6 +225,7 @@ export default function AdminPage() {
           page={galioData?.page ?? 1}
           totalPages={galioData?.totalPages ?? 1}
           onPageChange={fetchGalioOrders}
+          password={password || ""}
         />
       )}
 

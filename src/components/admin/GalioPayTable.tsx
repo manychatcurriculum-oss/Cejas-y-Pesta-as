@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface Order {
   id: string;
   reference_id: string;
@@ -18,6 +20,7 @@ interface Props {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  password: string;
 }
 
 function StatusBadge({ status }: { status: Order["status"] }) {
@@ -32,8 +35,28 @@ function StatusBadge({ status }: { status: Order["status"] }) {
   );
 }
 
-export default function GalioPayTable({ orders, total, page, totalPages, onPageChange }: Props) {
+export default function GalioPayTable({ orders, total, page, totalPages, onPageChange, password }: Props) {
+  const [sending, setSending] = useState<string | null>(null);
+  const [sent, setSent] = useState<Set<string>>(new Set());
   const totalPaid = orders.filter((o) => o.status === "paid").reduce((s, o) => s + o.amount, 0);
+
+  async function handleResend(orderId: string, password: string) {
+    setSending(orderId);
+    try {
+      const res = await fetch("/api/admin/galiopay-resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-password": password },
+        body: JSON.stringify({ orderId }),
+      });
+      if (res.ok) {
+        setSent((prev) => new Set([...prev, orderId]));
+        // Refresh after short delay
+        setTimeout(() => window.location.reload(), 1000);
+      }
+    } finally {
+      setSending(null);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -68,7 +91,7 @@ export default function GalioPayTable({ orders, total, page, totalPages, onPageC
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Monto</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
-                <th className="px-4 py-3 font-medium">Pagado</th>
+                <th className="px-4 py-3 font-medium">Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -86,10 +109,18 @@ export default function GalioPayTable({ orders, total, page, totalPages, onPageC
                   <td className="px-4 py-3 text-gray-400 text-xs">{o.email || "—"}</td>
                   <td className="px-4 py-3 font-semibold text-white">${(o.amount || 0).toLocaleString("es-AR")}</td>
                   <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
-                  <td className="px-4 py-3 text-gray-400">
-                    {o.paid_at
-                      ? new Date(o.paid_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
-                      : "—"}
+                  <td className="px-4 py-3">
+                    {o.status !== "paid" ? (
+                      <button
+                        onClick={() => handleResend(o.id, password)}
+                        disabled={sending === o.id || sent.has(o.id)}
+                        className="bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg disabled:opacity-50 transition-colors whitespace-nowrap"
+                      >
+                        {sending === o.id ? "Enviando..." : sent.has(o.id) ? "✅ Enviado" : "📧 Enviar acceso"}
+                      </button>
+                    ) : (
+                      <span className="text-gray-500 text-xs">—</span>
+                    )}
                   </td>
                 </tr>
               ))}

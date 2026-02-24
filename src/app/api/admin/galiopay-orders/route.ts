@@ -33,10 +33,30 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
   }
 
+  // Fetch total revenue across all pages (paid orders only)
+  let totalRevenue = 0;
+  try {
+    let revenueQuery = supabase
+      .from("galiopay_orders")
+      .select("amount")
+      .eq("status", "paid")
+      .gte("created_at", from);
+    if (to) {
+      const toDate = new Date(to);
+      toDate.setHours(23, 59, 59, 999);
+      revenueQuery = revenueQuery.lte("created_at", toDate.toISOString());
+    }
+    const { data: paidOrders } = await revenueQuery;
+    totalRevenue = (paidOrders || []).reduce((sum, o) => sum + (o.amount || 0), 0);
+  } catch (e) {
+    console.error("Failed to fetch total revenue:", e);
+  }
+
   return NextResponse.json({
     orders: data || [],
     total: count || 0,
     page,
     totalPages: Math.ceil((count || 0) / limit),
+    totalRevenue,
   });
 }

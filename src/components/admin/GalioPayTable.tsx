@@ -19,6 +19,7 @@ interface Props {
   total: number;
   page: number;
   totalPages: number;
+  totalRevenue: number;
   onPageChange: (page: number) => void;
   password: string;
 }
@@ -35,10 +36,9 @@ function StatusBadge({ status }: { status: Order["status"] }) {
   );
 }
 
-export default function GalioPayTable({ orders, total, page, totalPages, onPageChange, password }: Props) {
+export default function GalioPayTable({ orders, total, page, totalPages, totalRevenue, onPageChange, password }: Props) {
   const [sending, setSending] = useState<string | null>(null);
   const [sent, setSent] = useState<Set<string>>(new Set());
-  const totalPaid = orders.filter((o) => o.status === "paid").reduce((s, o) => s + o.amount, 0);
 
   async function handleResend(orderId: string, password: string) {
     setSending(orderId);
@@ -71,8 +71,8 @@ export default function GalioPayTable({ orders, total, page, totalPages, onPageC
           <p className="text-2xl font-bold text-green-400">{orders.filter((o) => o.status === "paid").length}</p>
         </div>
         <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-          <p className="text-gray-400 text-sm">Ingresos (página)</p>
-          <p className="text-2xl font-bold text-white">${totalPaid.toLocaleString("es-AR")}</p>
+          <p className="text-gray-400 text-sm">Ingresos totales</p>
+          <p className="text-2xl font-bold text-white">${totalRevenue.toLocaleString("es-AR")}</p>
         </div>
       </div>
 

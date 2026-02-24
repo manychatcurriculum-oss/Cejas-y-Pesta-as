@@ -30,7 +30,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [quizData, setQuizData] = useState<{ quizzes: unknown[]; total: number; page: number; totalPages: number } | null>(null);
   const [paymentData, setPaymentData] = useState<{ payments: unknown[]; total: number; page: number; totalPages: number } | null>(null);
-  const [galioData, setGalioData] = useState<{ orders: unknown[]; total: number; page: number; totalPages: number } | null>(null);
+  const [galioData, setGalioData] = useState<{ orders: unknown[]; total: number; page: number; totalPages: number; totalRevenue: number } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [dateFrom, setDateFrom] = useState("");
@@ -231,6 +231,7 @@ export default function AdminPage() {
           total={galioData?.total ?? 0}
           page={galioData?.page ?? 1}
           totalPages={galioData?.totalPages ?? 1}
+          totalRevenue={galioData?.totalRevenue ?? 0}
           onPageChange={fetchGalioOrders}
           password={password || ""}
         />

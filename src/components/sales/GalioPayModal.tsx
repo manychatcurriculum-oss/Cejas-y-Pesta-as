@@ -13,7 +13,6 @@ export default function GalioPayModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Lock body scroll when open
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -50,83 +49,103 @@ export default function GalioPayModal({ open, onClose }: Props) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 space-y-5">
+      <div className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden">
 
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl leading-none"
-        >
-          ✕
-        </button>
-
-        {/* Header */}
-        <div className="text-center space-y-1 pt-1">
-          <p className="text-xs font-bold text-pink-500 uppercase tracking-wide">Pago por transferencia</p>
-          <h2 className="text-xl font-extrabold text-gray-900">¿A dónde enviamos tu plan?</h2>
-          <p className="text-sm text-gray-500">Ingresá tus datos para continuar con el pago</p>
+        {/* Top pink bar */}
+        <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4">
+          <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white text-xl leading-none">✕</button>
+          <p className="text-white/80 text-xs font-semibold uppercase tracking-wide mb-0.5">Pago por transferencia bancaria</p>
+          <h2 className="text-white text-xl font-extrabold">¿A dónde enviamos tu plan?</h2>
         </div>
 
-        {/* Price pill */}
-        <div className="bg-pink-50 border border-pink-200 rounded-2xl px-4 py-3 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-gray-800">Plan Acelerado Gelatina Fit</p>
-            <p className="text-xs text-gray-500">15 guías · Acceso inmediato</p>
-          </div>
-          <p className="text-xl font-extrabold text-pink-600">$3.900</p>
-        </div>
+        <div className="p-6 space-y-5">
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tu nombre</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="María García"
-              required
-              autoFocus
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
-            />
+          {/* How it works — combate el miedo */}
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-4 space-y-2.5">
+            <p className="text-green-800 text-sm font-bold">¿Cómo funciona?</p>
+            {[
+              { n: "1", text: "Completás el pago en la siguiente pantalla" },
+              { n: "2", text: "En minutos recibís los links en tu email" },
+              { n: "3", text: "Accedés a tus 15 guías al instante, para siempre" },
+            ].map((s) => (
+              <div key={s.n} className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{s.n}</span>
+                <p className="text-green-700 text-sm">{s.text}</p>
+              </div>
+            ))}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tu email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="maria@email.com"
-              required
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
-            />
-            <p className="text-xs text-gray-400 mt-1">Acá recibís tu acceso al plan</p>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-              {error}
+          {/* Price */}
+          <div className="flex items-center justify-between bg-pink-50 border border-pink-200 rounded-2xl px-4 py-3">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Plan Acelerado Gelatina Fit</p>
+              <p className="text-xs text-gray-500">15 guías · Pago único · Sin suscripción</p>
             </div>
-          )}
+            <div className="text-right">
+              <p className="text-xl font-extrabold text-pink-600">$3.900</p>
+              <p className="text-xs text-gray-400">ARS</p>
+            </div>
+          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-pink-500/30 hover:from-pink-600 hover:to-pink-700 transition-all disabled:opacity-50 text-base"
-          >
-            {loading ? "Procesando..." : "Ir al pago →"}
-          </button>
-        </form>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tu nombre</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="María García"
+                required
+                autoFocus
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+              />
+            </div>
 
-        {/* Trust */}
-        <div className="flex items-center justify-center gap-4 text-xs text-gray-400 pt-1">
-          <span>🔒 Pago seguro</span>
-          <span>📧 Entrega inmediata</span>
-          <span>↩️ Garantía 30 días</span>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tu email <span className="text-pink-500 font-bold">← acá llegan tus guías</span>
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="maria@email.com"
+                required
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
+              />
+              <p className="text-xs text-gray-400 mt-1">Revisá también la carpeta de spam por las dudas</p>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">{error}</div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-pink-500/30 hover:from-pink-600 hover:to-pink-700 transition-all disabled:opacity-50 text-base"
+            >
+              {loading ? "Procesando..." : "Continuar al pago →"}
+            </button>
+          </form>
+
+          {/* Guarantee — el gran killer del miedo */}
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 flex items-start gap-3">
+            <span className="text-2xl shrink-0">🛡️</span>
+            <div>
+              <p className="text-sm font-bold text-gray-800">Garantía de devolución 30 días</p>
+              <p className="text-xs text-gray-500">Si por cualquier motivo no te convence, te devolvemos el 100% del dinero. Sin preguntas.</p>
+            </div>
+          </div>
+
+          {/* Social proof */}
+          <p className="text-center text-xs text-gray-400">
+            ⭐⭐⭐⭐⭐ &nbsp;+2.000 mujeres ya recibieron su plan · Calificación 4.9/5
+          </p>
         </div>
       </div>
     </div>

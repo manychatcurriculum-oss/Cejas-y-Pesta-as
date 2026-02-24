@@ -1,64 +1,127 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { sendDeliveryEmail } from "@/lib/email";
-import { getPayment } from "@/lib/galiopay";
 import { supabase } from "@/lib/supabase";
 
 const processedPayments = new Set<string>();
 
+function sha256(value: string): string {
+  return createHash("sha256").update(value.trim().toLowerCase()).digest("hex");
+}
+
+async function sendFBPurchaseEvent(opts: {
+  email: string;
+  firstName: string;
+  amount: number;
+  eventId: string;
+}) {
+  const accessToken = process.env.FB_ACCESS_TOKEN;
+  if (!accessToken) return;
+
+  try {
+    const res = await fetch(
+      "https://graph.facebook.com/v19.0/1577222740011880/events",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: [
+            {
+              event_name: "Purchase",
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: opts.eventId,
+              action_source: "website",
+              event_source_url: "https://gelatina-delta.vercel.app/test/success",
+              user_data: {
+                em: [sha256(opts.email)],
+                fn: [sha256(opts.firstName)],
+              },
+              custom_data: {
+                value: opts.amount,
+                currency: "ARS",
+                content_ids: ["gelatina-fit-plan"],
+                content_type: "product",
+                content_name: "Gelatina Fit - Plan Acelerado",
+              },
+            },
+          ],
+          access_token: accessToken,
+        }),
+      }
+    );
+    const data = await res.json();
+    console.log("FB CAPI response:", data);
+  } catch (e) {
+    console.error("FB CAPI error:", e);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log("GalioPay webhook received:", body);
+    console.log("GalioPay webhook received:", JSON.stringify(body));
 
     const { paymentId, status, referenceId } = body;
 
-    const isPaid = status === "paid" || status === "approved";
+    const isPaid = status === "approved" || status === "paid";
     if (!isPaid) {
       console.log("GalioPay webhook: ignoring status", status);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    if (!paymentId) {
-      console.warn("GalioPay webhook: no paymentId in body", body);
+    if (!referenceId) {
+      console.warn("GalioPay webhook: no referenceId in body");
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    if (processedPayments.has(paymentId)) {
-      console.log("GalioPay: already processed", paymentId);
+    if (processedPayments.has(referenceId)) {
+      console.log("GalioPay: already processed", referenceId);
       return NextResponse.json({ received: true, duplicate: true }, { status: 200 });
     }
 
-    processedPayments.add(paymentId);
+    processedPayments.add(referenceId);
 
-    // Verify with GalioPay API
-    const payment = await getPayment(paymentId);
-    console.log("GalioPay payment verified:", payment);
+    // Fetch order from Supabase by referenceId
+    const { data: order, error: orderError } = await supabase
+      .from("galiopay_orders")
+      .select("*")
+      .eq("reference_id", referenceId)
+      .single();
 
-    const paymentPaid = payment.status === "paid" || payment.status === "approved";
-    if (paymentPaid) {
-      // Fetch order from Supabase by referenceId
-      const { data: order } = await supabase
-        .from("galiopay_orders")
-        .select("*")
-        .eq("reference_id", referenceId)
-        .single();
+    console.log("Order lookup result:", { order: order?.id, error: orderError?.message });
 
-      if (order?.email) {
-        const firstName = (order.name || "Cliente").split(" ")[0];
-
-        // Update order status
-        await supabase
-          .from("galiopay_orders")
-          .update({ status: "paid", payment_id: paymentId, paid_at: new Date().toISOString() })
-          .eq("reference_id", referenceId);
-
-        // Send delivery email
-        console.log("GalioPay: sending delivery email to", order.email);
-        await sendDeliveryEmail(order.email, firstName);
-      } else {
-        console.warn("GalioPay: no order found for referenceId", referenceId);
-      }
+    if (!order?.email) {
+      console.warn("GalioPay: no order found for referenceId", referenceId);
+      return NextResponse.json({ received: true }, { status: 200 });
     }
+
+    // Update order status
+    const { error: updateError } = await supabase
+      .from("galiopay_orders")
+      .update({
+        status: "paid",
+        payment_id: paymentId || null,
+        paid_at: new Date().toISOString(),
+      })
+      .eq("reference_id", referenceId);
+
+    if (updateError) {
+      console.error("GalioPay: failed to update order", updateError.message);
+    }
+
+    const firstName = (order.name || "Cliente").split(" ")[0];
+
+    // Send delivery email
+    console.log("GalioPay: sending delivery email to", order.email);
+    await sendDeliveryEmail(order.email, firstName);
+
+    // Fire FB Conversions API (server-side Purchase event)
+    await sendFBPurchaseEvent({
+      email: order.email,
+      firstName,
+      amount: order.amount || 3900,
+      eventId: `gp_${referenceId}`,
+    });
 
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {

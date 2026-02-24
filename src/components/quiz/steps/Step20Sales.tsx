@@ -6,6 +6,7 @@ import { ALL_DELIVERABLES } from "@/lib/constants";
 import { useQuizStore } from "@/store/quizStore";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { PRODUCT_NAME, PRICE, COMBO_PRICE, NUTRITIONIST, NUTRITIONIST_LICENSE } from "@/lib/constants";
+import GalioPayModal from "@/components/sales/GalioPayModal";
 import CountdownTimer from "@/components/sales/CountdownTimer";
 import PricingCard from "@/components/sales/PricingCard";
 import BonusSection from "@/components/sales/BonusSection";
@@ -86,6 +87,7 @@ function DeliveryBadge() {
 export default function Step20Sales() {
   const { answers, bmiResult, quizEntryId } = useQuizStore();
   const [loading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleCheckout = (plan: "basico" | "acelerado" = "acelerado") => {
     const price = plan === "acelerado" ? COMBO_PRICE : PRICE;
@@ -95,11 +97,12 @@ export default function Step20Sales() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quiz_id: quizEntryId }),
     }).catch(() => {});
-    window.location.href = "https://ndprod.mitiendanube.com/productos/gelatina-fit-plan-acelerado-f7i1u/";
+    setModalOpen(true);
   };
 
   return (
     <div className="space-y-8 pb-24">
+      <GalioPayModal open={modalOpen} onClose={() => setModalOpen(false)} />
 
       {/* 1. PERSONALIZED AI RESULTS */}
       <PersonalizedResults />

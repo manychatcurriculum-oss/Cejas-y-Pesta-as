@@ -100,7 +100,7 @@ export default function PricingCard({ onCheckout, loading }: PricingCardProps) {
         <div className="flex items-center justify-center gap-4 pt-2">
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <span>🔒</span>
-            <span>Pago protegido por Tienda Nube</span>
+            <span>Pago 100% seguro</span>
           </div>
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <span>📧</span>

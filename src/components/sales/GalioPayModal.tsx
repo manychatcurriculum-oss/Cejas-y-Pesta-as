@@ -65,9 +65,9 @@ export default function GalioPayModal({ open, onClose }: Props) {
           <div className="bg-green-50 border border-green-200 rounded-2xl p-4 space-y-2.5">
             <p className="text-green-800 text-sm font-bold">¿Cómo funciona?</p>
             {[
-              { n: "1", text: "Completás el pago en la siguiente pantalla" },
-              { n: "2", text: "En minutos recibís los links en tu email" },
-              { n: "3", text: "Accedés a tus 15 guías al instante, para siempre" },
+              { n: "1", text: "Completás el pago de forma segura en segundos" },
+              { n: "2", text: "Tu Plan Personalizado Gelatina Fit llega a tu email al instante" },
+              { n: "3", text: "Abrís los links y empezás hoy mismo. Acceso de por vida" },
             ].map((s) => (
               <div key={s.n} className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{s.n}</span>

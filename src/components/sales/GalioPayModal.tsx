@@ -107,7 +107,7 @@ export default function GalioPayModal({ open, onClose }: Props) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tu email <span className="text-pink-500 font-bold">← acá llegan tus guías</span>
+                Tu email <span className="text-pink-500 font-bold">← acá llega tu Plan Personalizado - Gelatina Fit</span>
               </label>
               <input
                 type="email"
@@ -142,10 +142,6 @@ export default function GalioPayModal({ open, onClose }: Props) {
             </div>
           </div>
 
-          {/* Social proof */}
-          <p className="text-center text-xs text-gray-400">
-            ⭐⭐⭐⭐⭐ &nbsp;+2.000 mujeres ya recibieron su plan · Calificación 4.9/5
-          </p>
         </div>
       </div>
     </div>

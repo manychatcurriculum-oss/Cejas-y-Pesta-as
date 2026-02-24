@@ -44,24 +44,22 @@ export default function GalioPayModal({ open, onClose }: Props) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[92dvh] sm:max-h-[90vh]">
 
-        {/* Top pink bar */}
-        <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4">
+        {/* Top pink bar — fixed, never scrolls */}
+        <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4 rounded-t-3xl sm:rounded-t-3xl shrink-0">
           <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white text-xl leading-none">✕</button>
           <p className="text-white/80 text-xs font-semibold uppercase tracking-wide mb-0.5">Pago por transferencia bancaria</p>
           <h2 className="text-white text-xl font-extrabold">¿A dónde enviamos tu plan?</h2>
         </div>
 
-        <div className="p-6 space-y-5">
+        {/* Scrollable content */}
+        <div className="overflow-y-auto overscroll-contain p-6 space-y-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 
           {/* How it works — combate el miedo */}
           <div className="bg-green-50 border border-green-200 rounded-2xl p-4 space-y-2.5">
@@ -100,7 +98,6 @@ export default function GalioPayModal({ open, onClose }: Props) {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="María García"
                 required
-                autoFocus
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
               />
             </div>

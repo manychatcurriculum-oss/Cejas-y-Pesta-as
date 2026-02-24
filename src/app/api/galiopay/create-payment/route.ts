@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPaymentLink } from "@/lib/galiopay";
+import { supabase } from "@/lib/supabase";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://gelatina-delta.vercel.app";
 const PRICE = 3900;
@@ -29,6 +30,16 @@ export async function POST(request: NextRequest) {
         success: `${SITE_URL}/test/success?orderId=${referenceId}`,
         failure: `${SITE_URL}/test?error=1`,
       },
+    });
+
+    // Save pending order to Supabase
+    await supabase.from("galiopay_orders").insert({
+      id: referenceId,
+      reference_id: referenceId,
+      name,
+      email,
+      amount: PRICE,
+      status: "pending",
     });
 
     return NextResponse.json({ url: link.url, referenceId }, { status: 201 });

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendDeliveryEmail } from "@/lib/email";
 import { getPayment } from "@/lib/galiopay";
+import { supabase } from "@/lib/supabase";
 
 const processedPayments = new Set<string>();
 
@@ -26,17 +27,33 @@ export async function POST(request: NextRequest) {
 
     processedPayments.add(paymentId);
 
-    // Verify payment with GalioPay API
+    // Verify with GalioPay API
     const payment = await getPayment(paymentId);
     console.log("GalioPay payment verified:", payment);
 
     if (payment.status === "approved") {
-      // Extract email from referenceId (stored in Supabase lookup could go here)
-      // For now log it — full order storage can be added later
-      console.log("GalioPay: payment approved. referenceId:", referenceId);
+      // Fetch order from Supabase by referenceId
+      const { data: order } = await supabase
+        .from("galiopay_orders")
+        .select("*")
+        .eq("reference_id", referenceId)
+        .single();
 
-      // TODO: fetch email from pending orders table by referenceId
-      // await sendDeliveryEmail(email, name);
+      if (order?.email) {
+        const firstName = (order.name || "Cliente").split(" ")[0];
+
+        // Update order status
+        await supabase
+          .from("galiopay_orders")
+          .update({ status: "paid", payment_id: paymentId, paid_at: new Date().toISOString() })
+          .eq("reference_id", referenceId);
+
+        // Send delivery email
+        console.log("GalioPay: sending delivery email to", order.email);
+        await sendDeliveryEmail(order.email, firstName);
+      } else {
+        console.warn("GalioPay: no order found for referenceId", referenceId);
+      }
     }
 
     return NextResponse.json({ received: true }, { status: 200 });

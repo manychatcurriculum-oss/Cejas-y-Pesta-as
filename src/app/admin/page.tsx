@@ -8,8 +8,9 @@ import QuizTable from "@/components/admin/QuizTable";
 import PaymentTable from "@/components/admin/PaymentTable";
 import PatternAnalysis from "@/components/admin/PatternAnalysis";
 import DateRangePicker from "@/components/admin/DateRangePicker";
+import GalioPayTable from "@/components/admin/GalioPayTable";
 
-type Tab = "resumen" | "quizzes" | "ventas" | "patrones";
+type Tab = "resumen" | "quizzes" | "ventas" | "galiopay" | "patrones";
 
 interface Stats {
   totalQuizzes: number;
@@ -29,14 +30,13 @@ export default function AdminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [quizData, setQuizData] = useState<{ quizzes: unknown[]; total: number; page: number; totalPages: number } | null>(null);
   const [paymentData, setPaymentData] = useState<{ payments: unknown[]; total: number; page: number; totalPages: number } | null>(null);
+  const [galioData, setGalioData] = useState<{ orders: unknown[]; total: number; page: number; totalPages: number } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Date range
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [dateLabel, setDateLabel] = useState("Todo");
 
-  // Check session
   useEffect(() => {
     const saved = sessionStorage.getItem("admin-password");
     if (saved) setPassword(saved);
@@ -64,7 +64,6 @@ export default function AdminPage() {
     return params.toString();
   }, [dateFrom, dateTo]);
 
-  // Fetch stats
   useEffect(() => {
     if (!password) return;
     setLoading(true);
@@ -75,7 +74,6 @@ export default function AdminPage() {
       .finally(() => setLoading(false));
   }, [password, dateFrom, dateTo, headers, dateParams]);
 
-  // Fetch quizzes when on quiz tab
   const fetchQuizzes = useCallback((page: number) => {
     if (!password) return;
     fetch(`/api/admin/quizzes?page=${page}&${dateParams()}`, { headers: headers() })
@@ -88,7 +86,6 @@ export default function AdminPage() {
     if (tab === "quizzes") fetchQuizzes(1);
   }, [tab, fetchQuizzes]);
 
-  // Fetch payments when on payment tab
   const fetchPayments = useCallback((page: number) => {
     if (!password) return;
     fetch(`/api/admin/payments?page=${page}&${dateParams()}`, { headers: headers() })
@@ -101,6 +98,18 @@ export default function AdminPage() {
     if (tab === "ventas") fetchPayments(1);
   }, [tab, fetchPayments]);
 
+  const fetchGalioOrders = useCallback((page: number) => {
+    if (!password) return;
+    fetch(`/api/admin/galiopay-orders?page=${page}&${dateParams()}`, { headers: headers() })
+      .then((r) => r.json())
+      .then(setGalioData)
+      .catch(console.error);
+  }, [password, dateFrom, dateTo, headers, dateParams]);
+
+  useEffect(() => {
+    if (tab === "galiopay") fetchGalioOrders(1);
+  }, [tab, fetchGalioOrders]);
+
   function handleDateChange(from: string, to: string, label: string) {
     setDateFrom(from);
     setDateTo(to);
@@ -112,33 +121,27 @@ export default function AdminPage() {
   const tabs: { key: Tab; label: string }[] = [
     { key: "resumen", label: "Resumen" },
     { key: "quizzes", label: "Quizzes" },
-    { key: "ventas", label: "Ventas" },
+    { key: "ventas", label: "Ventas TN" },
+    { key: "galiopay", label: "GalioPay 💳" },
     { key: "patrones", label: "Patrones" },
   ];
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-white">Gelatina Fit Admin</h1>
-        <button
-          onClick={handleLogout}
-          className="text-gray-400 hover:text-white text-sm transition-colors"
-        >
+        <button onClick={handleLogout} className="text-gray-400 hover:text-white text-sm transition-colors">
           Cerrar sesión
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-gray-900 rounded-lg p-1 w-fit">
+      <div className="flex gap-1 mb-4 bg-gray-900 rounded-lg p-1 w-fit flex-wrap">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === t.key
-                ? "bg-pink-500 text-white"
-                : "text-gray-400 hover:text-white"
+              tab === t.key ? "bg-pink-500 text-white" : "text-gray-400 hover:text-white"
             }`}
           >
             {t.label}
@@ -146,21 +149,15 @@ export default function AdminPage() {
         ))}
       </div>
 
-      {/* Date range */}
       <div className="mb-6">
-        <DateRangePicker
-          from={dateFrom}
-          to={dateTo}
-          activeLabel={dateLabel}
-          onChange={handleDateChange}
-        />
+        <DateRangePicker from={dateFrom} to={dateTo} activeLabel={dateLabel} onChange={handleDateChange} />
       </div>
 
       {loading && !stats && (
         <div className="text-gray-400 text-center py-12">Cargando...</div>
       )}
 
-      {/* Resumen tab */}
+      {/* Resumen */}
       {tab === "resumen" && stats && (
         <div className="space-y-6">
           <OverviewCards
@@ -171,13 +168,11 @@ export default function AdminPage() {
             totalRevenue={stats.totalRevenue}
           />
           <RevenueChart revenueByDay={stats.revenueByDay} />
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Recent quizzes */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
               <h3 className="text-white font-semibold mb-3">Últimos quizzes</h3>
               <div className="space-y-2">
-                {(stats.recentQuizzes as Array<{ id: string; timestamp: string; answers: { name: string; age: string }; status?: string }>).map((q) => (
+                {(stats.recentQuizzes as Array<{ id: string; timestamp: string; answers: { name: string }; status?: string }>).map((q) => (
                   <div key={q.id} className="flex justify-between items-center text-sm gap-2">
                     <span className="text-gray-300 truncate">{q.answers.name || "Sin nombre"}</span>
                     <div className="flex items-center gap-2 shrink-0">
@@ -194,58 +189,45 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ))}
-                {stats.recentQuizzes.length === 0 && (
-                  <p className="text-gray-500 text-sm">No hay quizzes aún</p>
-                )}
+                {stats.recentQuizzes.length === 0 && <p className="text-gray-500 text-sm">No hay quizzes aún</p>}
               </div>
             </div>
-
-            {/* Recent sales */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
               <h3 className="text-white font-semibold mb-3">Últimas ventas</h3>
               <div className="space-y-2">
-                {(stats.recentPayments as Array<{ id: number; transaction_amount: number; date_approved: string; payer?: { email?: string } }>).map((p) => (
+                {(stats.recentPayments as Array<{ id: number; transaction_amount: number; date_approved: string }>).map((p) => (
                   <div key={p.id} className="flex justify-between text-sm">
                     <span className="text-gray-300">${p.transaction_amount?.toLocaleString("es-AR")}</span>
                     <span className="text-gray-500">
-                      {p.date_approved
-                        ? new Date(p.date_approved).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
-                        : "—"}
+                      {p.date_approved ? new Date(p.date_approved).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—"}
                     </span>
                   </div>
                 ))}
-                {stats.recentPayments.length === 0 && (
-                  <p className="text-gray-500 text-sm">No hay ventas aún</p>
-                )}
+                {stats.recentPayments.length === 0 && <p className="text-gray-500 text-sm">No hay ventas aún</p>}
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Quizzes tab */}
       {tab === "quizzes" && quizData && (
-        <QuizTable
-          quizzes={quizData.quizzes as never[]}
-          total={quizData.total}
-          page={quizData.page}
-          totalPages={quizData.totalPages}
-          onPageChange={fetchQuizzes}
-        />
+        <QuizTable quizzes={quizData.quizzes as never[]} total={quizData.total} page={quizData.page} totalPages={quizData.totalPages} onPageChange={fetchQuizzes} />
       )}
 
-      {/* Ventas tab */}
       {tab === "ventas" && paymentData && (
-        <PaymentTable
-          payments={paymentData.payments as never[]}
-          total={paymentData.total}
-          page={paymentData.page}
-          totalPages={paymentData.totalPages}
-          onPageChange={fetchPayments}
+        <PaymentTable payments={paymentData.payments as never[]} total={paymentData.total} page={paymentData.page} totalPages={paymentData.totalPages} onPageChange={fetchPayments} />
+      )}
+
+      {tab === "galiopay" && (
+        <GalioPayTable
+          orders={(galioData?.orders ?? []) as never[]}
+          total={galioData?.total ?? 0}
+          page={galioData?.page ?? 1}
+          totalPages={galioData?.totalPages ?? 1}
+          onPageChange={fetchGalioOrders}
         />
       )}
 
-      {/* Patrones tab */}
       {tab === "patrones" && stats && (
         <PatternAnalysis patterns={stats.patterns} totalQuizzes={stats.totalQuizzes} />
       )}

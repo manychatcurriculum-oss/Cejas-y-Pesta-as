@@ -184,7 +184,7 @@ export default function AdminPage() {
                         <span className="bg-gray-700 text-gray-500 text-xs px-1.5 py-0.5 rounded-full">—</span>
                       )}
                       <span className="text-gray-500">
-                        {new Date(q.timestamp).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        {new Date(q.timestamp).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
                   </div>

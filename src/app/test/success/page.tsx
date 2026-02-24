@@ -1,12 +1,20 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { trackPurchase } from "@/lib/analytics";
+import { PRICE } from "@/lib/constants";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const paymentId = searchParams.get("galio_payment_id");
+
+  useEffect(() => {
+    if (orderId) {
+      trackPurchase(PRICE);
+    }
+  }, [orderId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white flex items-center justify-center p-4">
@@ -20,23 +28,6 @@ function SuccessContent() {
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2">¡Pago recibido!</h1>
           <p className="text-gray-500">Tu plan Gelatina Fit está siendo procesado. Recibirás el acceso en tu email en breve.</p>
         </div>
-
-        {(orderId || paymentId) && (
-          <div className="bg-white border border-gray-100 rounded-2xl p-4 text-left text-sm space-y-2">
-            {orderId && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Referencia:</span>
-                <span className="font-mono text-gray-700 text-xs">{orderId}</span>
-              </div>
-            )}
-            {paymentId && (
-              <div className="flex justify-between">
-                <span className="text-gray-500">Payment ID:</span>
-                <span className="font-mono text-gray-700 text-xs">{paymentId}</span>
-              </div>
-            )}
-          </div>
-        )}
 
         <div className="bg-pink-50 border border-pink-100 rounded-2xl p-4 text-sm text-pink-800">
           Revisá tu email (incluyendo la carpeta de spam) en los próximos minutos.

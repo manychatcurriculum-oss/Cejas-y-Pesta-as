@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const link = await createPaymentLink({
       items: [
         {
-          title: "Gelatina Fit - Plan Acelerado",
+          title: `Gelatina Fit - Plan Acelerado - ${name.split(" ")[0]}`,
           quantity: 1,
           unitPrice: PRICE,
           currencyId: "ARS",

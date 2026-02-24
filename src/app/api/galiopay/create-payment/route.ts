@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
       referenceId,
       description: "Gelatina Fit - Plan Acelerado Digital",
       backUrl: {
-        success: `${SITE_URL}/test/success?orderId=${referenceId}`,
-        failure: `${SITE_URL}/test?error=1`,
+        success: `${SITE_URL}/success?orderId=${referenceId}`,
+        failure: `${SITE_URL}/?error=1`,
       },
     });
 

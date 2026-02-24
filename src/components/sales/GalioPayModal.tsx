@@ -62,16 +62,16 @@ export default function GalioPayModal({ open, onClose }: Props) {
         <div className="overflow-y-auto overscroll-contain p-6 space-y-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 
           {/* How it works — combate el miedo */}
-          <div className="bg-green-50 border border-green-200 rounded-2xl p-4 space-y-2.5">
-            <p className="text-green-800 text-sm font-bold">¿Cómo funciona?</p>
+          <div className="bg-green-50 border border-green-200 rounded-xl p-3 space-y-1.5">
+            <p className="text-green-800 text-xs font-bold uppercase tracking-wide">¿Cómo funciona?</p>
             {[
-              { n: "1", text: "Completás el pago de forma segura en segundos" },
-              { n: "2", text: "Tu Plan Personalizado Gelatina Fit llega a tu email al instante" },
-              { n: "3", text: "Abrís los links y empezás hoy mismo. Acceso de por vida" },
+              { n: "1", text: "Pagás en segundos de forma segura" },
+              { n: "2", text: "Tu plan llega al email al instante" },
+              { n: "3", text: "Empezás hoy. Acceso de por vida" },
             ].map((s) => (
-              <div key={s.n} className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{s.n}</span>
-                <p className="text-green-700 text-sm">{s.text}</p>
+              <div key={s.n} className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">{s.n}</span>
+                <p className="text-green-700 text-xs">{s.text}</p>
               </div>
             ))}
           </div>

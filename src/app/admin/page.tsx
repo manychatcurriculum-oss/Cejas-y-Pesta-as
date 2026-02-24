@@ -195,10 +195,17 @@ export default function AdminPage() {
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
               <h3 className="text-white font-semibold mb-3">Últimas ventas</h3>
               <div className="space-y-2">
-                {(stats.recentPayments as Array<{ id: number; transaction_amount: number; date_approved: string }>).map((p) => (
-                  <div key={p.id} className="flex justify-between text-sm">
-                    <span className="text-gray-300">${p.transaction_amount?.toLocaleString("es-AR")}</span>
-                    <span className="text-gray-500">
+                {(stats.recentPayments as Array<{ id: number; transaction_amount: number; date_approved: string; source?: string }>).map((p) => (
+                  <div key={p.id} className="flex justify-between items-center text-sm gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-300 font-semibold">${p.transaction_amount?.toLocaleString("es-AR")}</span>
+                      {p.source === "GalioPay" ? (
+                        <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">GP</span>
+                      ) : (
+                        <span className="bg-gray-700 text-gray-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">TN</span>
+                      )}
+                    </div>
+                    <span className="text-gray-500 shrink-0">
                       {p.date_approved ? new Date(p.date_approved).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—"}
                     </span>
                   </div>

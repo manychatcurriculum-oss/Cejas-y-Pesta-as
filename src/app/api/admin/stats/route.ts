@@ -61,9 +61,32 @@ export async function GET(request: Request) {
     }
 
     const approvedOrders = allOrders.filter((o) => o.payment_status === "paid");
-    const totalRevenue = approvedOrders.reduce((sum, o) => sum + parseFloat(o.total), 0);
+    const tnRevenue = approvedOrders.reduce((sum, o) => sum + parseFloat(o.total), 0);
+
+    // Get GalioPay paid orders
+    type GalioOrder = { id: string; name: string; email: string; amount: number; status: string; created_at: string; paid_at: string | null };
+    let galioOrders: GalioOrder[] = [];
+    try {
+      let galioQuery = supabase
+        .from("galiopay_orders")
+        .select("*")
+        .eq("status", "paid")
+        .gte("created_at", from || "2026-01-01");
+      if (to) {
+        const toDate = new Date(to);
+        toDate.setHours(23, 59, 59, 999);
+        galioQuery = galioQuery.lte("created_at", toDate.toISOString());
+      }
+      const { data } = await galioQuery;
+      galioOrders = data || [];
+    } catch (e) {
+      console.error("Failed to fetch galiopay orders for stats:", e);
+    }
+
+    const galioRevenue = galioOrders.reduce((sum, o) => sum + (o.amount || 0), 0);
     const totalQuizzes = quizzes.length;
-    const totalSales = approvedOrders.length;
+    const totalSales = approvedOrders.length + galioOrders.length;
+    const totalRevenue = tnRevenue + galioRevenue;
     const conversionRate = totalQuizzes > 0 ? (totalSales / totalQuizzes) * 100 : 0;
 
     // Revenue by day (last 14 days)
@@ -78,6 +101,12 @@ export async function GET(request: Request) {
       const day = new Date(o.closed_at || o.created_at).toISOString().split("T")[0];
       if (day in revenueByDay) {
         revenueByDay[day] += parseFloat(o.total);
+      }
+    }
+    for (const o of galioOrders) {
+      const day = new Date(o.paid_at || o.created_at).toISOString().split("T")[0];
+      if (day in revenueByDay) {
+        revenueByDay[day] += o.amount || 0;
       }
     }
 
@@ -108,11 +137,14 @@ export async function GET(request: Request) {
       console.error("Failed to fetch checkout events for stats:", e);
     }
 
-    const purchasedFirstNames = new Set(
-      approvedOrders
+    const purchasedFirstNames = new Set([
+      ...approvedOrders
         .map((o) => (o.contact_name || "").trim().toLowerCase().split(" ")[0])
-        .filter(Boolean)
-    );
+        .filter(Boolean),
+      ...galioOrders
+        .map((o) => (o.name || "").trim().toLowerCase().split(" ")[0])
+        .filter(Boolean),
+    ]);
 
     const recentQuizzes = quizzes.slice(-5).reverse().map((q) => {
       const firstName = (q.answers.name || "").trim().toLowerCase();
@@ -120,13 +152,25 @@ export async function GET(request: Request) {
       const clickedCheckout = checkoutQuizIds.has(q.id);
       return { ...q, status: purchased ? "compro" : clickedCheckout ? "checkout" : "sin_accion" };
     });
-    const recentPayments = approvedOrders.slice(0, 5).map((o) => ({
-      id: o.id,
-      status: "approved",
-      date_approved: o.closed_at || o.created_at,
-      transaction_amount: parseFloat(o.total),
-      payer: { email: o.contact_email, first_name: o.contact_name?.split(" ")[0] || "" },
-    }));
+
+    const allRecentPayments = [
+      ...approvedOrders.map((o) => ({
+        id: o.id,
+        status: "approved",
+        date_approved: o.closed_at || o.created_at,
+        transaction_amount: parseFloat(o.total),
+        source: "TN",
+      })),
+      ...galioOrders.map((o) => ({
+        id: o.id,
+        status: "paid",
+        date_approved: o.paid_at || o.created_at,
+        transaction_amount: o.amount || 0,
+        source: "GalioPay",
+      })),
+    ].sort((a, b) => new Date(b.date_approved).getTime() - new Date(a.date_approved).getTime());
+
+    const recentPayments = allRecentPayments.slice(0, 5);
 
     return NextResponse.json({
       totalQuizzes,

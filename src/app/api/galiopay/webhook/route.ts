@@ -12,11 +12,14 @@ export async function POST(request: NextRequest) {
 
     const { paymentId, status, referenceId } = body;
 
-    if (status !== "approved") {
+    const isPaid = status === "paid" || status === "approved";
+    if (!isPaid) {
+      console.log("GalioPay webhook: ignoring status", status);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
     if (!paymentId) {
+      console.warn("GalioPay webhook: no paymentId in body", body);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
@@ -31,7 +34,8 @@ export async function POST(request: NextRequest) {
     const payment = await getPayment(paymentId);
     console.log("GalioPay payment verified:", payment);
 
-    if (payment.status === "approved") {
+    const paymentPaid = payment.status === "paid" || payment.status === "approved";
+    if (paymentPaid) {
       // Fetch order from Supabase by referenceId
       const { data: order } = await supabase
         .from("galiopay_orders")

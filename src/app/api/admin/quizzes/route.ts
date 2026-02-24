@@ -41,18 +41,41 @@ export async function GET(request: Request) {
   }
 
   // Fetch TN paid orders to match by first name
-  let purchasedFirstNames = new Set<string>();
+  const allPurchasedFirstNames: string[] = [];
   try {
     const orders = await fetchTNOrders(from || "2026-01-01", to || undefined);
-    purchasedFirstNames = new Set(
-      orders
-        .filter((o) => o.payment_status === "paid")
-        .map((o) => (o.contact_name || "").trim().toLowerCase().split(" ")[0])
-        .filter(Boolean)
-    );
+    orders
+      .filter((o) => o.payment_status === "paid")
+      .forEach((o) => {
+        const fn = (o.contact_name || "").trim().toLowerCase().split(" ")[0];
+        if (fn) allPurchasedFirstNames.push(fn);
+      });
   } catch (e) {
     console.error("Failed to fetch TN orders for quiz status:", e);
   }
+
+  // Fetch GalioPay paid orders to match by first name
+  try {
+    let galioQuery = supabase
+      .from("galiopay_orders")
+      .select("name")
+      .eq("status", "paid");
+    if (from) galioQuery = galioQuery.gte("created_at", from);
+    if (to) {
+      const toDate = new Date(to);
+      toDate.setHours(23, 59, 59, 999);
+      galioQuery = galioQuery.lte("created_at", toDate.toISOString());
+    }
+    const { data } = await galioQuery;
+    (data || []).forEach((o: { name: string }) => {
+      const fn = (o.name || "").trim().toLowerCase().split(" ")[0];
+      if (fn) allPurchasedFirstNames.push(fn);
+    });
+  } catch (e) {
+    console.error("Failed to fetch GalioPay orders for quiz status:", e);
+  }
+
+  const purchasedFirstNames = new Set(allPurchasedFirstNames);
 
   const total = entries.length;
   const start = (page - 1) * limit;

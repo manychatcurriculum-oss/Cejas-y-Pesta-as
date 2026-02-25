@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
-import { getQuizEntries } from "@/lib/quiz-storage";
+import { getQuizEntries, getQuizCount } from "@/lib/quiz-storage";
 import { fetchTNOrders } from "@/lib/tiendanube";
 import { ageToRange } from "@/lib/label-map";
 import { supabase } from "@/lib/supabase";
@@ -31,17 +31,9 @@ export async function GET(request: Request) {
       console.error("Failed to fetch checkout events:", e);
     }
 
-    // Get quizzes
-    let quizzes = await getQuizEntries();
-    if (from) {
-      const fromDate = new Date(from);
-      quizzes = quizzes.filter((q) => new Date(q.timestamp) >= fromDate);
-    }
-    if (to) {
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      quizzes = quizzes.filter((q) => new Date(q.timestamp) <= toDate);
-    }
+    // Get quizzes (newest first, filtered by date)
+    const quizzes = await getQuizEntries({ from: from || "2026-01-01", to });
+    const totalQuizzesCount = await getQuizCount(from || "2026-01-01", to);
 
     // Get orders from Tienda Nube (with cache)
     let allOrders: Awaited<ReturnType<typeof fetchTNOrders>> = [];
@@ -84,7 +76,7 @@ export async function GET(request: Request) {
     }
 
     const galioRevenue = galioOrders.reduce((sum, o) => sum + (o.amount || 0), 0);
-    const totalQuizzes = quizzes.length;
+    const totalQuizzes = totalQuizzesCount;
     const totalSales = approvedOrders.length + galioOrders.length;
     const totalRevenue = tnRevenue + galioRevenue;
     const conversionRate = totalQuizzes > 0 ? (totalSales / totalQuizzes) * 100 : 0;
@@ -146,7 +138,7 @@ export async function GET(request: Request) {
         .filter(Boolean),
     ]);
 
-    const recentQuizzes = quizzes.slice(-5).reverse().map((q) => {
+    const recentQuizzes = quizzes.slice(0, 5).map((q) => {
       const firstName = (q.answers.name || "").trim().toLowerCase();
       const purchased = firstName.length > 0 && purchasedFirstNames.has(firstName);
       const clickedCheckout = checkoutQuizIds.has(q.id);

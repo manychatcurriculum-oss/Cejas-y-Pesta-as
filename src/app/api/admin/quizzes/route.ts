@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
-import { getQuizEntries } from "@/lib/quiz-storage";
+import { getQuizEntries, getQuizCount } from "@/lib/quiz-storage";
 import { fetchTNOrders } from "@/lib/tiendanube";
 import { supabase } from "@/lib/supabase";
 
@@ -16,17 +16,11 @@ export async function GET(request: Request) {
   const from = url.searchParams.get("from") || "";
   const to = url.searchParams.get("to") || "";
 
-  let entries = (await getQuizEntries()).reverse(); // newest first
-
-  if (from) {
-    const fromDate = new Date(from);
-    entries = entries.filter((e) => new Date(e.timestamp) >= fromDate);
-  }
-  if (to) {
-    const toDate = new Date(to);
-    toDate.setHours(23, 59, 59, 999);
-    entries = entries.filter((e) => new Date(e.timestamp) <= toDate);
-  }
+  // Use Supabase-level pagination — avoids the 1000 row default limit
+  const [entries, total] = await Promise.all([
+    getQuizEntries({ from: from || "2026-01-01", to: to || undefined, limit, page }),
+    getQuizCount(from || "2026-01-01", to || undefined),
+  ]);
 
   // Fetch checkout events to know which quiz IDs clicked checkout
   let checkoutQuizIds = new Set<string>();
@@ -77,11 +71,7 @@ export async function GET(request: Request) {
 
   const purchasedFirstNames = new Set(allPurchasedFirstNames);
 
-  const total = entries.length;
-  const start = (page - 1) * limit;
-  const paginated = entries.slice(start, start + limit);
-
-  const quizzesWithStatus = paginated.map((q) => {
+  const quizzesWithStatus = entries.map((q) => {
     const firstName = (q.answers.name || "").trim().toLowerCase();
     const purchased = firstName.length > 0 && purchasedFirstNames.has(firstName);
     const clickedCheckout = checkoutQuizIds.has(q.id);

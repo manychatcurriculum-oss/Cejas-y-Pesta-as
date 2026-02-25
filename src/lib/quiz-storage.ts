@@ -25,11 +25,31 @@ export async function appendQuizEntry(answers: QuizAnswers, bmiResult: BMIResult
   return { id: entry.id, timestamp: entry.timestamp, answers, bmiResult };
 }
 
-export async function getQuizEntries(): Promise<QuizEntry[]> {
-  const { data, error } = await supabase
+export async function getQuizEntries(options?: {
+  from?: string;
+  to?: string;
+  limit?: number;
+  page?: number;
+}): Promise<QuizEntry[]> {
+  const limit = options?.limit ?? 2000;
+  const offset = options?.page ? (options.page - 1) * limit : 0;
+
+  let query = supabase
     .from("quiz_entries")
     .select("*")
-    .order("timestamp", { ascending: true });
+    .order("timestamp", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (options?.from) {
+    query = query.gte("timestamp", new Date(options.from).toISOString());
+  }
+  if (options?.to) {
+    const toDate = new Date(options.to);
+    toDate.setHours(23, 59, 59, 999);
+    query = query.lte("timestamp", toDate.toISOString());
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Failed to fetch quiz entries:", error);
@@ -42,4 +62,20 @@ export async function getQuizEntries(): Promise<QuizEntry[]> {
     answers: row.answers,
     bmiResult: row.bmi_result,
   }));
+}
+
+export async function getQuizCount(from?: string, to?: string): Promise<number> {
+  let query = supabase
+    .from("quiz_entries")
+    .select("*", { count: "exact", head: true });
+
+  if (from) query = query.gte("timestamp", new Date(from).toISOString());
+  if (to) {
+    const toDate = new Date(to);
+    toDate.setHours(23, 59, 59, 999);
+    query = query.lte("timestamp", toDate.toISOString());
+  }
+
+  const { count } = await query;
+  return count || 0;
 }

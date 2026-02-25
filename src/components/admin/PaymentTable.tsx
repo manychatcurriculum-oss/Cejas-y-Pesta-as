@@ -62,7 +62,7 @@ export default function PaymentTable({ payments, total, page, totalPages, onPage
               <tr key={p.id} className="border-b border-gray-800/50 hover:bg-gray-800/50 text-gray-300">
                 <td className="px-4 py-3">
                   {p.date_created
-                    ? new Date(p.date_created).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+                    ? new Date(p.date_created).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })
                     : "—"}
                 </td>
                 <td className="px-4 py-3 text-white font-medium">

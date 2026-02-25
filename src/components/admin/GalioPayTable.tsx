@@ -104,7 +104,7 @@ export default function GalioPayTable({ orders, total, page, totalPages, totalRe
               {orders.map((o) => (
                 <tr key={o.id} className="border-b border-gray-800/50 text-gray-300">
                   <td className="px-4 py-3 text-gray-400">
-                    {new Date(o.created_at).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    {new Date(o.created_at).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })}
                   </td>
                   <td className="px-4 py-3 text-white font-medium">{o.name || "—"}</td>
                   <td className="px-4 py-3 text-gray-400 text-xs">{o.email || "—"}</td>

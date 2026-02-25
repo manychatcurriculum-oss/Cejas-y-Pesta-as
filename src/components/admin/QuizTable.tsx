@@ -75,7 +75,7 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
                   onClick={() => setExpandedId(expandedId === q.id ? null : q.id)}
                 >
                   <td className="px-4 py-3">
-                    {new Date(q.timestamp).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    {new Date(q.timestamp).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" })}
                   </td>
                   <td className="px-4 py-3 text-white font-medium">{q.answers.name || "—"}</td>
                   <td className="px-4 py-3">{getLabel("age", q.answers.age)}</td>

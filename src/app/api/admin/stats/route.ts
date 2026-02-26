@@ -80,35 +80,30 @@ export async function GET(request: Request) {
     const totalRevenue = tnRevenue + galioRevenue;
     const conversionRate = totalQuizzes > 0 ? (totalSales / totalQuizzes) * 100 : 0;
 
-    // Revenue by day (last 14 days) — always independent of admin date filter
+    // Revenue by day — uses the selected date range (capped at 60 days for display)
     const AR_TZ = "America/Argentina/Buenos_Aires";
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: AR_TZ });
+    const chartEnd = to || today;
+
+    // Build day list: from 'from' to 'chartEnd', max 60 days (most recent)
+    const endMs = new Date(chartEnd + "T12:00:00Z").getTime();
+    const startMs = Math.max(
+      new Date(from + "T12:00:00Z").getTime(),
+      endMs - 59 * 86400000
+    );
     const revenueByDay: Record<string, number> = {};
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(Date.now() - i * 86400000);
-      revenueByDay[d.toLocaleDateString("sv-SE", { timeZone: AR_TZ })] = 0;
+    for (let ms = startMs; ms <= endMs + 43200000; ms += 86400000) {
+      const key = new Date(ms).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
+      revenueByDay[key] = 0;
     }
 
-    // Chart start: midnight ART 13 days ago = T03:00Z same date
-    const chartFromDate = new Date(Date.now() - 13 * 86400000);
-    const chartFrom = chartFromDate.toLocaleDateString("sv-SE", { timeZone: AR_TZ }) + "T03:00:00.000Z";
-
-    // GalioPay — fetch last 14 days independently (ignore admin date filter)
-    try {
-      const { data: chartGalio } = await supabase
-        .from("galiopay_orders")
-        .select("paid_at, created_at, amount")
-        .eq("status", "paid")
-        .gte("created_at", chartFrom);
-      for (const o of chartGalio || []) {
-        const day = new Date(o.paid_at || o.created_at).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
-        if (day in revenueByDay) revenueByDay[day] += o.amount || 0;
-      }
-    } catch (e) {
-      console.error("Failed to fetch chart galiopay orders:", e);
+    // Aggregate GalioPay paid orders by paid_at (Argentina date)
+    for (const o of galioOrders) {
+      const day = new Date(o.paid_at || o.created_at).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
+      if (day in revenueByDay) revenueByDay[day] += o.amount || 0;
     }
-
-    // TN — filter already-fetched allOrders against the 14-day window (no extra API call)
-    for (const o of allOrders.filter((o) => o.payment_status === "paid")) {
+    // Aggregate TN approved orders by closed_at (Argentina date)
+    for (const o of approvedOrders) {
       const day = new Date(o.closed_at || o.created_at).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
       if (day in revenueByDay) revenueByDay[day] += parseFloat(o.total);
     }

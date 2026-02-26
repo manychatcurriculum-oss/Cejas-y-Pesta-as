@@ -69,7 +69,7 @@ export default function AdminPage() {
     setLoading(true);
     fetch(`/api/admin/stats?${dateParams()}`, { headers: headers() })
       .then((r) => r.json())
-      .then(setStats)
+      .then((data) => { if (!data.error) setStats(data); })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [password, dateFrom, dateTo, headers, dateParams]);

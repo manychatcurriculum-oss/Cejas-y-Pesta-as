@@ -17,13 +17,12 @@ export async function GET(request: Request) {
   let query = supabase
     .from("galiopay_orders")
     .select("*", { count: "exact" })
-    .gte("created_at", from)
+    .gte("created_at", from + "T03:00:00.000Z")
     .order("created_at", { ascending: false });
 
   if (to) {
-    const toDate = new Date(to);
-    toDate.setHours(23, 59, 59, 999);
-    query = query.lte("created_at", toDate.toISOString());
+    const [y, m, d] = to.split("-").map(Number);
+    query = query.lte("created_at", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
   }
 
   const { data, count, error } = await query.range((page - 1) * limit, page * limit - 1);
@@ -41,11 +40,10 @@ export async function GET(request: Request) {
       .from("galiopay_orders")
       .select("amount")
       .eq("status", "paid")
-      .gte("created_at", from);
+      .gte("created_at", from + "T03:00:00.000Z");
     if (to) {
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      revenueQuery = revenueQuery.lte("created_at", toDate.toISOString());
+      const [y, m, d] = to.split("-").map(Number);
+      revenueQuery = revenueQuery.lte("created_at", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
     }
     const { data: paidOrders } = await revenueQuery;
     totalPaid = (paidOrders || []).length;

@@ -41,12 +41,13 @@ export async function getQuizEntries(options?: {
     .range(offset, offset + limit - 1);
 
   if (options?.from) {
-    query = query.gte("timestamp", new Date(options.from).toISOString());
+    // Midnight Argentina time (UTC-3) = 03:00 UTC same date
+    query = query.gte("timestamp", options.from + "T03:00:00.000Z");
   }
   if (options?.to) {
-    const toDate = new Date(options.to);
-    toDate.setHours(23, 59, 59, 999);
-    query = query.lte("timestamp", toDate.toISOString());
+    // 23:59:59.999 Argentina = next calendar day 02:59:59.999 UTC
+    const [y, m, d] = options.to.split("-").map(Number);
+    query = query.lte("timestamp", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
   }
 
   const { data, error } = await query;
@@ -69,11 +70,10 @@ export async function getQuizCount(from?: string, to?: string): Promise<number> 
     .from("quiz_entries")
     .select("*", { count: "exact", head: true });
 
-  if (from) query = query.gte("timestamp", new Date(from).toISOString());
+  if (from) query = query.gte("timestamp", from + "T03:00:00.000Z");
   if (to) {
-    const toDate = new Date(to);
-    toDate.setHours(23, 59, 59, 999);
-    query = query.lte("timestamp", toDate.toISOString());
+    const [y, m, d] = to.split("-").map(Number);
+    query = query.lte("timestamp", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
   }
 
   const { count } = await query;

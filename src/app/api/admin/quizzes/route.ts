@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getQuizEntries, getQuizCount } from "@/lib/quiz-storage";
-import { fetchTNOrders } from "@/lib/tiendanube";
 import { supabase } from "@/lib/supabase";
 
 export async function GET(request: Request) {
@@ -34,46 +33,30 @@ export async function GET(request: Request) {
     console.error("Failed to fetch checkout events:", e);
   }
 
-  // Fetch TN paid orders to match by first name
-  const allPurchasedFirstNames: string[] = [];
-  try {
-    const orders = await fetchTNOrders(from || "2026-01-01", to || undefined);
-    orders
-      .filter((o) => o.payment_status === "paid")
-      .forEach((o) => {
-        const fn = (o.contact_name || "").trim().toLowerCase().split(" ")[0];
-        if (fn) allPurchasedFirstNames.push(fn);
-      });
-  } catch (e) {
-    console.error("Failed to fetch TN orders for quiz status:", e);
-  }
-
-  // Fetch GalioPay paid orders to match by first name
+  // Fetch GalioPay paid orders only — match by full normalized name
+  const galioFullNames = new Set<string>();
   try {
     let galioQuery = supabase
       .from("galiopay_orders")
       .select("name")
       .eq("status", "paid");
-    if (from) galioQuery = galioQuery.gte("created_at", from);
+    if (from) galioQuery = galioQuery.gte("created_at", from + "T03:00:00.000Z");
     if (to) {
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      galioQuery = galioQuery.lte("created_at", toDate.toISOString());
+      const [y, m, d] = to.split("-").map(Number);
+      galioQuery = galioQuery.lte("created_at", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
     }
     const { data } = await galioQuery;
     (data || []).forEach((o: { name: string }) => {
-      const fn = (o.name || "").trim().toLowerCase().split(" ")[0];
-      if (fn) allPurchasedFirstNames.push(fn);
+      const fn = (o.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+      if (fn) galioFullNames.add(fn);
     });
   } catch (e) {
     console.error("Failed to fetch GalioPay orders for quiz status:", e);
   }
 
-  const purchasedFirstNames = new Set(allPurchasedFirstNames);
-
   const quizzesWithStatus = entries.map((q) => {
-    const firstName = (q.answers.name || "").trim().toLowerCase();
-    const purchased = firstName.length > 0 && purchasedFirstNames.has(firstName);
+    const fullName = (q.answers.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const purchased = fullName.length > 0 && galioFullNames.has(fullName);
     const clickedCheckout = checkoutQuizIds.has(q.id);
     return {
       ...q,

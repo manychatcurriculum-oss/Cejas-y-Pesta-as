@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       const { count } = await supabase
         .from("checkout_events")
         .select("*", { count: "exact", head: true })
-        .gte("timestamp", from || "2026-01-01");
+        .gte("timestamp", (from || "2026-01-01") + "T03:00:00.000Z");
       totalCheckouts = count || 0;
     } catch (e) {
       console.error("Failed to fetch checkout events:", e);
@@ -63,11 +63,10 @@ export async function GET(request: Request) {
         .from("galiopay_orders")
         .select("*")
         .eq("status", "paid")
-        .gte("created_at", from || "2026-01-01");
+        .gte("created_at", (from || "2026-01-01") + "T03:00:00.000Z");
       if (to) {
-        const toDate = new Date(to);
-        toDate.setHours(23, 59, 59, 999);
-        galioQuery = galioQuery.lte("created_at", toDate.toISOString());
+        const [y, m, d] = to.split("-").map(Number);
+        galioQuery = galioQuery.lte("created_at", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
       }
       const { data } = await galioQuery;
       galioOrders = data || [];
@@ -81,22 +80,21 @@ export async function GET(request: Request) {
     const totalRevenue = tnRevenue + galioRevenue;
     const conversionRate = totalQuizzes > 0 ? (totalSales / totalQuizzes) * 100 : 0;
 
-    // Revenue by day (last 14 days)
+    // Revenue by day (last 14 days) — dates in Argentina timezone
     const revenueByDay: Record<string, number> = {};
-    const now = new Date();
+    const AR_TZ = "America/Argentina/Buenos_Aires";
     for (let i = 13; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      revenueByDay[d.toISOString().split("T")[0]] = 0;
+      const d = new Date(Date.now() - i * 86400000);
+      revenueByDay[d.toLocaleDateString("sv-SE", { timeZone: AR_TZ })] = 0;
     }
     for (const o of approvedOrders) {
-      const day = new Date(o.closed_at || o.created_at).toISOString().split("T")[0];
+      const day = new Date(o.closed_at || o.created_at).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
       if (day in revenueByDay) {
         revenueByDay[day] += parseFloat(o.total);
       }
     }
     for (const o of galioOrders) {
-      const day = new Date(o.paid_at || o.created_at).toISOString().split("T")[0];
+      const day = new Date(o.paid_at || o.created_at).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
       if (day in revenueByDay) {
         revenueByDay[day] += o.amount || 0;
       }
@@ -129,18 +127,16 @@ export async function GET(request: Request) {
       console.error("Failed to fetch checkout events for stats:", e);
     }
 
-    const purchasedFirstNames = new Set([
-      ...approvedOrders
-        .map((o) => (o.contact_name || "").trim().toLowerCase().split(" ")[0])
-        .filter(Boolean),
-      ...galioOrders
-        .map((o) => (o.name || "").trim().toLowerCase().split(" ")[0])
-        .filter(Boolean),
-    ]);
+    // Only match against GalioPay paid orders (approved sale required), by full normalized name
+    const galioFullNames = new Set(
+      galioOrders
+        .map((o) => (o.name || "").trim().toLowerCase().replace(/\s+/g, " "))
+        .filter(Boolean)
+    );
 
     const recentQuizzes = quizzes.slice(0, 5).map((q) => {
-      const firstName = (q.answers.name || "").trim().toLowerCase();
-      const purchased = firstName.length > 0 && purchasedFirstNames.has(firstName);
+      const fullName = (q.answers.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+      const purchased = fullName.length > 0 && galioFullNames.has(fullName);
       const clickedCheckout = checkoutQuizIds.has(q.id);
       return { ...q, status: purchased ? "compro" : clickedCheckout ? "checkout" : "sin_accion" };
     });

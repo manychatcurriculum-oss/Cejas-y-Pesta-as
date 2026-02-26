@@ -2,10 +2,15 @@
 
 type DateRange = { from: string; to: string; label: string };
 
+function baDate(offsetDays = 0): string {
+  const ms = Date.now() + offsetDays * 86400000;
+  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
+}
+
 const presets: DateRange[] = [
-  { from: new Date().toISOString().split("T")[0], to: new Date().toISOString().split("T")[0], label: "Hoy" },
-  { from: new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0], to: new Date().toISOString().split("T")[0], label: "7 días" },
-  { from: new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0], to: new Date().toISOString().split("T")[0], label: "30 días" },
+  { from: baDate(0), to: baDate(0), label: "Hoy" },
+  { from: baDate(-7), to: baDate(0), label: "7 días" },
+  { from: baDate(-30), to: baDate(0), label: "30 días" },
   { from: "", to: "", label: "Todo" },
 ];
 

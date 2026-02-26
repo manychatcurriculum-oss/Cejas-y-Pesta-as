@@ -86,9 +86,7 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
                     ) : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    {q.status === "compro" ? (
-                      <span className="bg-green-500/20 text-green-400 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">✅ Compró</span>
-                    ) : q.status === "checkout" ? (
+                    {q.status === "checkout" ? (
                       <span className="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">🛒 Checkout</span>
                     ) : (
                       <span className="bg-gray-700 text-gray-400 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">— Sin acción</span>

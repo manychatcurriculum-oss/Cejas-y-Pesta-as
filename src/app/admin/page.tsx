@@ -69,7 +69,7 @@ export default function AdminPage() {
     setLoading(true);
     fetch(`/api/admin/stats?${dateParams()}`, { headers: headers() })
       .then((r) => r.json())
-      .then((data) => { if (!data.error) setStats(data); })
+      .then(setStats)
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [password, dateFrom, dateTo, headers, dateParams]);
@@ -176,9 +176,7 @@ export default function AdminPage() {
                   <div key={q.id} className="flex justify-between items-center text-sm gap-2">
                     <span className="text-gray-300 truncate">{q.answers.name || "Sin nombre"}</span>
                     <div className="flex items-center gap-2 shrink-0">
-                      {q.status === "compro" ? (
-                        <span className="bg-green-500/20 text-green-400 text-xs font-bold px-1.5 py-0.5 rounded-full">Compró</span>
-                      ) : q.status === "checkout" ? (
+                      {q.status === "checkout" ? (
                         <span className="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-1.5 py-0.5 rounded-full">Checkout</span>
                       ) : (
                         <span className="bg-gray-700 text-gray-500 text-xs px-1.5 py-0.5 rounded-full">—</span>

@@ -5,6 +5,11 @@ import { fetchTNOrders } from "@/lib/tiendanube";
 import { ageToRange } from "@/lib/label-map";
 import { supabase } from "@/lib/supabase";
 
+// Argentina = UTC-3, no DST. Returns "YYYY-MM-DD" for any UTC timestamp.
+function artDate(utcMs: number): string {
+  return new Date(utcMs - 3 * 3600000).toISOString().split("T")[0];
+}
+
 let cachedStats: { data: unknown; fetchedAt: number } | null = null;
 const CACHE_TTL = 60_000;
 
@@ -81,30 +86,28 @@ export async function GET(request: Request) {
     const conversionRate = totalQuizzes > 0 ? (totalSales / totalQuizzes) * 100 : 0;
 
     // Revenue by day — uses the selected date range (capped at 60 days for display)
-    const AR_TZ = "America/Argentina/Buenos_Aires";
-    const today = new Date().toLocaleDateString("sv-SE", { timeZone: AR_TZ });
+    const today = artDate(Date.now());
     const chartEnd = to || today;
 
-    // Build day list: from 'from' to 'chartEnd', max 60 days (most recent)
-    const endMs = new Date(chartEnd + "T12:00:00Z").getTime();
+    // Build day list: noon UTC pivot per day, max 60 days (most recent)
+    const endMs   = new Date(chartEnd + "T15:00:00Z").getTime(); // 15:00 UTC = noon ART
     const startMs = Math.max(
-      new Date(from + "T12:00:00Z").getTime(),
+      new Date(from + "T15:00:00Z").getTime(),
       endMs - 59 * 86400000
     );
     const revenueByDay: Record<string, number> = {};
-    for (let ms = startMs; ms <= endMs + 43200000; ms += 86400000) {
-      const key = new Date(ms).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
-      revenueByDay[key] = 0;
+    for (let ms = startMs; ms <= endMs + 1000; ms += 86400000) {
+      revenueByDay[artDate(ms)] = 0;
     }
 
     // Aggregate GalioPay paid orders by paid_at (Argentina date)
     for (const o of galioOrders) {
-      const day = new Date(o.paid_at || o.created_at).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
+      const day = artDate(new Date(o.paid_at || o.created_at).getTime());
       if (day in revenueByDay) revenueByDay[day] += o.amount || 0;
     }
     // Aggregate TN approved orders by closed_at (Argentina date)
     for (const o of approvedOrders) {
-      const day = new Date(o.closed_at || o.created_at).toLocaleDateString("sv-SE", { timeZone: AR_TZ });
+      const day = artDate(new Date(o.closed_at || o.created_at).getTime());
       if (day in revenueByDay) revenueByDay[day] += parseFloat(o.total);
     }
 
@@ -135,19 +138,11 @@ export async function GET(request: Request) {
       console.error("Failed to fetch checkout events for stats:", e);
     }
 
-    // Only match against GalioPay paid orders (approved sale required), by full normalized name
-    const galioFullNames = new Set(
-      galioOrders
-        .map((o) => (o.name || "").trim().toLowerCase().replace(/\s+/g, " "))
-        .filter(Boolean)
-    );
-
-    const recentQuizzes = quizzes.slice(0, 5).map((q) => {
-      const fullName = (q.answers.name || "").trim().toLowerCase().replace(/\s+/g, " ");
-      const purchased = fullName.length > 0 && galioFullNames.has(fullName);
-      const clickedCheckout = checkoutQuizIds.has(q.id);
-      return { ...q, status: purchased ? "compro" : clickedCheckout ? "checkout" : "sin_accion" };
-    });
+    // "compró" is exclusive to GalioPay section — quizzes only show checkout/sin_accion
+    const recentQuizzes = quizzes.slice(0, 5).map((q) => ({
+      ...q,
+      status: checkoutQuizIds.has(q.id) ? "checkout" : "sin_accion",
+    }));
 
     const allRecentPayments = [
       ...approvedOrders.map((o) => ({

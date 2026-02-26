@@ -11,9 +11,11 @@ function SuccessContent() {
   const paymentId = searchParams.get("galio_payment_id");
 
   useEffect(() => {
-    if (orderId) {
-      trackPurchase(PRICE, `gp_${orderId}`);
-    }
+    if (!orderId) return;
+    const storageKey = `gf_px_${orderId}`;
+    if (sessionStorage.getItem(storageKey)) return;
+    sessionStorage.setItem(storageKey, "1");
+    trackPurchase(PRICE, `gp_${orderId}`);
   }, [orderId]);
 
   return (

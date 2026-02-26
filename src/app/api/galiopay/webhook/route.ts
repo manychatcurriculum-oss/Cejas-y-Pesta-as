@@ -3,8 +3,6 @@ import { createHash } from "crypto";
 import { sendDeliveryEmail } from "@/lib/email";
 import { supabase } from "@/lib/supabase";
 
-const processedPayments = new Set<string>();
-
 function sha256(value: string): string {
   return createHash("sha256").update(value.trim().toLowerCase()).digest("hex");
 }
@@ -74,25 +72,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    if (processedPayments.has(referenceId)) {
-      console.log("GalioPay: already processed", referenceId);
-      return NextResponse.json({ received: true, duplicate: true }, { status: 200 });
-    }
-
-    processedPayments.add(referenceId);
-
-    // Fetch order from Supabase by referenceId
+    // Fetch order from Supabase — primary deduplication (persistent across serverless instances)
     const { data: order, error: orderError } = await supabase
       .from("galiopay_orders")
       .select("*")
       .eq("reference_id", referenceId)
       .single();
 
-    console.log("Order lookup result:", { order: order?.id, error: orderError?.message });
+    console.log("Order lookup result:", { order: order?.id, status: order?.status, error: orderError?.message });
 
     if (!order?.email) {
       console.warn("GalioPay: no order found for referenceId", referenceId);
       return NextResponse.json({ received: true }, { status: 200 });
+    }
+
+    // Skip if already paid — prevents duplicate CAPI events on webhook retries
+    if (order.status === "paid") {
+      console.log("GalioPay: order already paid, skipping duplicate webhook", referenceId);
+      return NextResponse.json({ received: true, duplicate: true }, { status: 200 });
     }
 
     // Update order status

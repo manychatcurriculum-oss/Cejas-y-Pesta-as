@@ -10,10 +10,13 @@ function SuccessContent() {
   const orderId = searchParams.get("orderId");
 
   useEffect(() => {
-    if (orderId) {
-      // eventId must match CAPI webhook: "gp_${referenceId}" — enables deduplication
-      trackPurchase(PRICE, `gp_${orderId}`);
-    }
+    if (!orderId) return;
+    // Prevent firing more than once per orderId (reloads, back-navigation, StrictMode)
+    const storageKey = `gf_px_${orderId}`;
+    if (sessionStorage.getItem(storageKey)) return;
+    sessionStorage.setItem(storageKey, "1");
+    // eventId matches CAPI webhook "gp_${referenceId}" — FB deduplicates browser+server
+    trackPurchase(PRICE, `gp_${orderId}`);
   }, [orderId]);
 
   return (

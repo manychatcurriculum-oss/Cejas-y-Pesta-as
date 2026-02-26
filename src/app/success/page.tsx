@@ -11,7 +11,8 @@ function SuccessContent() {
 
   useEffect(() => {
     if (orderId) {
-      trackPurchase(PRICE);
+      // eventId must match CAPI webhook: "gp_${referenceId}" — enables deduplication
+      trackPurchase(PRICE, `gp_${orderId}`);
     }
   }, [orderId]);
 

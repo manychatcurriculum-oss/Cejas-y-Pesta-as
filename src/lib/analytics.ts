@@ -1,7 +1,7 @@
 // Analytics helpers - ready for Meta Pixel / GTM integration
 // Replace with actual implementation when pixel IDs are available
 
-export function trackEvent(eventName: string, params?: Record<string, unknown>) {
+export function trackEvent(eventName: string, params?: Record<string, unknown>, eventId?: string) {
   if (typeof window === "undefined") return;
 
   // Mapping for GA4 vs Meta Standard events
@@ -12,10 +12,14 @@ export function trackEvent(eventName: string, params?: Record<string, unknown>) 
   if (eventName === "InitiateCheckout") gaEventName = "begin_checkout";
   if (eventName === "Purchase") gaEventName = "purchase";
 
-  // Meta Pixel
+  // Meta Pixel — pass eventID for deduplication with CAPI
   const win = window as unknown as Record<string, (...args: unknown[]) => void>;
   if (typeof win.fbq === "function") {
-    win.fbq("track", metaEventName, params);
+    if (eventId) {
+      win.fbq("track", metaEventName, params, { eventID: eventId });
+    } else {
+      win.fbq("track", metaEventName, params);
+    }
   }
 
   // Data layer for GTM / GA4
@@ -68,7 +72,7 @@ export function trackBeginCheckout(price: number) {
   });
 }
 
-export function trackPurchase(price: number) {
+export function trackPurchase(price: number, eventId?: string) {
   trackEvent("Purchase", { // Meta Standard Name
     value: price,
     currency: "ARS",
@@ -76,5 +80,5 @@ export function trackPurchase(price: number) {
     content_category: "Plan de Salud",
     content_ids: ["gelatina-fit-plan"],
     content_type: "product",
-  });
+  }, eventId);
 }

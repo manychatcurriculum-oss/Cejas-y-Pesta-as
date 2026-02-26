@@ -31,7 +31,7 @@ async function sendFBPurchaseEvent(opts: {
               event_time: Math.floor(Date.now() / 1000),
               event_id: opts.eventId,
               action_source: "website",
-              event_source_url: "https://gelatina-delta.vercel.app/test/success",
+              event_source_url: "https://gelatina-delta.vercel.app/success",
               user_data: {
                 em: [sha256(opts.email)],
                 fn: [sha256(opts.firstName)],

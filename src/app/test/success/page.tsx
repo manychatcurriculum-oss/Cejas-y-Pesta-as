@@ -12,7 +12,7 @@ function SuccessContent() {
 
   useEffect(() => {
     if (orderId) {
-      trackPurchase(PRICE);
+      trackPurchase(PRICE, `gp_${orderId}`);
     }
   }, [orderId]);
 

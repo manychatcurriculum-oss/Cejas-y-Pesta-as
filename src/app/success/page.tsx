@@ -1,13 +1,15 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { trackPurchase } from "@/lib/analytics";
 import { PRICE } from "@/lib/constants";
 
 function SuccessContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const [seconds, setSeconds] = useState(10);
 
   useEffect(() => {
     if (!orderId) return;
@@ -18,6 +20,15 @@ function SuccessContent() {
     // eventId matches CAPI webhook "gp_${referenceId}" — FB deduplicates browser+server
     trackPurchase(PRICE, `gp_${orderId}`);
   }, [orderId]);
+
+  useEffect(() => {
+    if (seconds <= 0) {
+      router.push("/gracias");
+      return;
+    }
+    const timer = setTimeout(() => setSeconds((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [seconds, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white flex items-center justify-center p-4">
@@ -68,6 +79,11 @@ function SuccessContent() {
         >
           Ver mi plan ahora →
         </a>
+
+        <p className="text-xs text-gray-400">
+          Redirigiendo automáticamente en{" "}
+          <span className="font-bold text-pink-500">{seconds}s</span>…
+        </p>
 
         <p className="text-xs text-gray-400">
           ¿Problemas con tu compra? Escribinos a{" "}

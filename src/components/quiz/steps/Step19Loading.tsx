@@ -67,15 +67,15 @@ export default function Step19Loading() {
         new Promise((r) => setTimeout(r, 3000)),
       ]);
 
-      // Send email with quiz answers + Gemini tips included
+      // Generate ID on frontend so quizEntryId is set immediately (no race condition)
+      const quizId = `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      setQuizEntryId(quizId);
+
       fetch("/api/quiz-complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers, bmiResult, personalizedTips: tipsData }),
-      })
-        .then((r) => r.json())
-        .then((data) => { if (data.quizId) setQuizEntryId(data.quizId); })
-        .catch(() => {});
+        body: JSON.stringify({ answers, bmiResult, personalizedTips: tipsData, quizId }),
+      }).catch(() => {});
 
       nextStep();
     }, totalDuration);

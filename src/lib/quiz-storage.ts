@@ -8,9 +8,9 @@ export interface QuizEntry {
   bmiResult: BMIResult | null;
 }
 
-export async function appendQuizEntry(answers: QuizAnswers, bmiResult: BMIResult | null): Promise<QuizEntry> {
+export async function appendQuizEntry(answers: QuizAnswers, bmiResult: BMIResult | null, id?: string): Promise<QuizEntry> {
   const entry = {
-    id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    id: id || `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     timestamp: new Date().toISOString(),
     answers,
     bmi_result: bmiResult,

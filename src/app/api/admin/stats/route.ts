@@ -127,12 +127,16 @@ export async function GET(request: Request) {
     }
 
     // Fetch checkout events to tag recent quizzes
+    // Only need events from the last 30 days to match recent quizzes
     let checkoutQuizIds = new Set<string>();
     try {
+      const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
       const { data } = await supabase
         .from("checkout_events")
         .select("quiz_id")
-        .not("quiz_id", "is", null);
+        .not("quiz_id", "is", null)
+        .gte("timestamp", since)
+        .limit(10000);
       checkoutQuizIds = new Set((data || []).map((e: { quiz_id: string }) => e.quiz_id));
     } catch (e) {
       console.error("Failed to fetch checkout events for stats:", e);

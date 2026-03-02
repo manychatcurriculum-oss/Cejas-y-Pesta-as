@@ -16,7 +16,7 @@ const SUGGESTIONS = [
 
 const WELCOME: Message = {
   role: "assistant",
-  content: "¡Hola! 👋 Soy la Lic. Carolina Méndez, tu nutricionista de Gelatina Fit. Estoy acá para ayudarte a arrancar con el plan, darte recetas y responder todas tus dudas. ¿Por dónde empezamos? 🌸",
+  content: "¡Hola! 👋 Soy tu asistente de Gelatina Fit. Estoy acá para ayudarte a arrancar con el plan, darte recetas y responder todas tus dudas. ¿Por dónde empezamos? 🌸",
 };
 
 export default function GelatinaChatbot() {
@@ -74,11 +74,11 @@ export default function GelatinaChatbot() {
       {/* Header */}
       <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-5 py-4 flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shrink-0">
-          👩‍⚕️
+          🥗
         </div>
         <div>
-          <p className="text-white font-bold text-sm leading-tight">Lic. Carolina Méndez</p>
-          <p className="text-pink-100 text-xs">Nutricionista · Gelatina Fit</p>
+          <p className="text-white font-bold text-sm leading-tight">Asistente Gelatina Fit</p>
+          <p className="text-pink-100 text-xs">Recetas · Tips · Consejos</p>
         </div>
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -92,7 +92,7 @@ export default function GelatinaChatbot() {
           <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "assistant" && (
               <div className="w-7 h-7 rounded-full bg-pink-100 flex items-center justify-center text-sm shrink-0 mr-2 mt-0.5">
-                👩‍⚕️
+                🥗
               </div>
             )}
             <div
@@ -111,6 +111,9 @@ export default function GelatinaChatbot() {
           <div className="flex justify-start">
             <div className="w-7 h-7 rounded-full bg-pink-100 flex items-center justify-center text-sm shrink-0 mr-2 mt-0.5">
               👩‍⚕️
+            </div>
+            <div className="w-7 h-7 rounded-full bg-pink-100 flex items-center justify-center text-sm shrink-0 mr-2 mt-0.5">
+              🥗
             </div>
             <div className="bg-white border border-pink-100 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
               <div className="flex gap-1 items-center">

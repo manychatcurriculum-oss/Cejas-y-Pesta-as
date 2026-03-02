@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-const SYSTEM_PROMPT = `Sos la Lic. Carolina Méndez (MN 8847), nutricionista profesional especialista en planes detox y manejo de peso saludable. Trabajás para "Gelatina Fit", un plan nutricional basado en gelatina con colágeno hidrolizado que ayuda a bajar de peso, reducir hinchazón y mejorar la piel.
+const SYSTEM_PROMPT = `Sos un asistente nutricional de "Gelatina Fit", un plan basado en gelatina con colágeno hidrolizado que ayuda a bajar de peso, reducir hinchazón y mejorar la piel. No menciones nombres propios ni credenciales.
 
 Tu misión es ayudar a las mujeres que acaban de comprar el plan Gelatina Fit con:
 - Recetas con gelatina para adelgazar
@@ -41,12 +41,12 @@ export async function POST(req: Request) {
       contents.length === 1
         ? [
             { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
-            { role: "model", parts: [{ text: "¡Hola! Soy la Lic. Carolina Méndez, tu nutricionista de Gelatina Fit. ¿En qué te puedo ayudar hoy?" }] },
+            { role: "model", parts: [{ text: "¡Hola! Soy tu asistente de Gelatina Fit. ¿En qué te puedo ayudar hoy?" }] },
             ...contents,
           ]
         : [
             { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
-            { role: "model", parts: [{ text: "¡Hola! Soy la Lic. Carolina Méndez, tu nutricionista de Gelatina Fit. ¿En qué te puedo ayudar hoy?" }] },
+            { role: "model", parts: [{ text: "¡Hola! Soy tu asistente de Gelatina Fit. ¿En qué te puedo ayudar hoy?" }] },
             ...contents,
           ];
 

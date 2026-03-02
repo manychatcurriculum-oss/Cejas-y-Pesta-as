@@ -75,9 +75,9 @@ function GraciasContent() {
         {/* Chatbot */}
         <div className="space-y-3">
           <div className="text-center space-y-1">
-            <p className="text-xs font-bold text-pink-500 uppercase tracking-wide">Tu nutricionista personal</p>
+            <p className="text-xs font-bold text-pink-500 uppercase tracking-wide">Asistente Gelatina Fit</p>
             <h2 className="text-2xl font-extrabold text-gray-900">¿Tenés dudas sobre cómo empezar?</h2>
-            <p className="text-gray-500 text-sm">La Lic. Carolina está acá para ayudarte con recetas, consejos y lo que necesites 💬</p>
+            <p className="text-gray-500 text-sm">Preguntanos sobre recetas, consejos y cómo arrancar con el plan 💬</p>
           </div>
           <GelatinaChatbot />
         </div>

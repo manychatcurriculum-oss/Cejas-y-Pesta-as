@@ -16,7 +16,7 @@ const SUGGESTIONS = [
 
 const WELCOME: Message = {
   role: "assistant",
-  content: "¡Hola! 👋 Soy tu asistente de Gelatina Fit. Estoy acá para ayudarte a arrancar con el plan, darte recetas y responder todas tus dudas. ¿Por dónde empezamos? 🌸",
+  content: "¡Hola! 👋 Soy tu asistente de Gelatina Fit. Estoy acá para darte recetas, contarte qué gelatina comprar en la dietética y ayudarte con todo lo que necesites para empezar. ¿Qué querés saber? 🌸",
 };
 
 export default function GelatinaChatbot() {

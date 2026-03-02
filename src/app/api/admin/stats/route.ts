@@ -127,17 +127,21 @@ export async function GET(request: Request) {
     }
 
     // Fetch checkout events to tag recent quizzes
-    // Only need events from the last 30 days to match recent quizzes
     let checkoutQuizIds = new Set<string>();
+    let debugCheckout: { totalRows: number; nullQuizIds: number; sampleQuizIds: string[]; error?: string } = { totalRows: 0, nullQuizIds: 0, sampleQuizIds: [] };
     try {
-      const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("checkout_events")
         .select("quiz_id")
-        .not("quiz_id", "is", null)
-        .gte("timestamp", since)
+        .order("timestamp", { ascending: false })
         .limit(10000);
-      checkoutQuizIds = new Set((data || []).map((e: { quiz_id: string }) => e.quiz_id));
+      if (error) debugCheckout.error = error.message;
+      const rows = data || [];
+      debugCheckout.totalRows = rows.length;
+      debugCheckout.nullQuizIds = rows.filter((e: { quiz_id: string | null }) => !e.quiz_id).length;
+      const withId = rows.filter((e: { quiz_id: string | null }) => e.quiz_id);
+      debugCheckout.sampleQuizIds = withId.slice(0, 5).map((e: { quiz_id: string }) => e.quiz_id);
+      checkoutQuizIds = new Set(withId.map((e: { quiz_id: string }) => e.quiz_id));
     } catch (e) {
       console.error("Failed to fetch checkout events for stats:", e);
     }
@@ -177,6 +181,10 @@ export async function GET(request: Request) {
       patterns,
       recentQuizzes,
       recentPayments,
+      _debug: {
+        checkoutEvents: debugCheckout,
+        recentQuizIds: quizzes.slice(0, 5).map((q) => q.id),
+      },
     });
   } catch (error) {
     console.error("Error fetching admin stats:", error);

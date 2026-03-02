@@ -5,6 +5,7 @@ import { PRODUCT_NAME, ALL_DELIVERABLES } from "@/lib/constants";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { useQuizStore } from "@/store/quizStore";
+import GelatinaChatbot from "@/components/gracias/GelatinaChatbot";
 
 function GraciasContent() {
   const { name: storedName } = useQuizStore((state) => state.answers);
@@ -70,6 +71,17 @@ function GraciasContent() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mt-12 space-y-12">
+
+        {/* Chatbot */}
+        <div className="space-y-3">
+          <div className="text-center space-y-1">
+            <p className="text-xs font-bold text-pink-500 uppercase tracking-wide">Tu nutricionista personal</p>
+            <h2 className="text-2xl font-extrabold text-gray-900">¿Tenés dudas sobre cómo empezar?</h2>
+            <p className="text-gray-500 text-sm">La Lic. Carolina está acá para ayudarte con recetas, consejos y lo que necesites 💬</p>
+          </div>
+          <GelatinaChatbot />
+        </div>
+
         {/* All Deliverables with images */}
         <div className="space-y-8">
           <div className="text-center space-y-2">

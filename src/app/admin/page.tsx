@@ -9,8 +9,9 @@ import PaymentTable from "@/components/admin/PaymentTable";
 import PatternAnalysis from "@/components/admin/PatternAnalysis";
 import DateRangePicker from "@/components/admin/DateRangePicker";
 import GalioPayTable from "@/components/admin/GalioPayTable";
+import AdsLog from "@/components/admin/AdsLog";
 
-type Tab = "resumen" | "quizzes" | "ventas" | "galiopay" | "patrones";
+type Tab = "resumen" | "quizzes" | "ventas" | "galiopay" | "patrones" | "ads";
 
 interface Stats {
   totalQuizzes: number;
@@ -124,6 +125,7 @@ export default function AdminPage() {
     { key: "ventas", label: "Ventas TN" },
     { key: "galiopay", label: "GalioPay 💳" },
     { key: "patrones", label: "Patrones" },
+    { key: "ads", label: "Ads 📢" },
   ];
 
   return (
@@ -239,6 +241,8 @@ export default function AdminPage() {
       {tab === "patrones" && stats && (
         <PatternAnalysis patterns={stats.patterns} totalQuizzes={stats.totalQuizzes} />
       )}
+
+      {tab === "ads" && <AdsLog />}
     </div>
   );
 }

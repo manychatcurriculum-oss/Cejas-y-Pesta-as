@@ -14,9 +14,7 @@ export interface TNOrder {
   gateway_name: string;
 }
 
-export async function fetchTNOrders(from?: string, to?: string): Promise<TNOrder[]> {
-  if (!STORE_ID || !ACCESS_TOKEN) throw new Error("Tienda Nube credentials not set");
-
+async function fetchTNOrdersChunk(chunkFrom: string, chunkTo: string): Promise<TNOrder[]> {
   const allOrders: TNOrder[] = [];
   let page = 1;
 
@@ -25,15 +23,10 @@ export async function fetchTNOrders(from?: string, to?: string): Promise<TNOrder
       per_page: "200",
       page: String(page),
       sort_by: "created_at",
-      sort_direction: "desc",
+      sort_direction: "asc",
+      created_at_min: chunkFrom,
+      created_at_max: chunkTo,
     });
-
-    if (from) params.set("created_at_min", from);
-    if (to) {
-      const toDate = new Date(to);
-      toDate.setHours(23, 59, 59, 999);
-      params.set("created_at_max", toDate.toISOString());
-    }
 
     const res = await fetch(`https://api.tiendanube.com/v1/${STORE_ID}/orders?${params}`, {
       headers: {
@@ -50,6 +43,40 @@ export async function fetchTNOrders(from?: string, to?: string): Promise<TNOrder
     allOrders.push(...data);
     if (data.length < 200) break;
     page++;
+  }
+
+  return allOrders;
+}
+
+export async function fetchTNOrders(from?: string, to?: string): Promise<TNOrder[]> {
+  if (!STORE_ID || !ACCESS_TOKEN) throw new Error("Tienda Nube credentials not set");
+
+  const startDate = new Date((from || "2026-01-01") + "T00:00:00.000Z");
+  const endDate = to
+    ? new Date(to + "T23:59:59.999Z")
+    : new Date();
+
+  // Split into monthly chunks to bypass the 1000-order API limit
+  const allOrders: TNOrder[] = [];
+  const seen = new Set<number>();
+
+  let cursor = new Date(startDate);
+  while (cursor <= endDate) {
+    const chunkStart = cursor.toISOString();
+    // End of this chunk = last millisecond of the same month
+    const chunkEnd = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 1) - 1);
+    const chunkEndCapped = chunkEnd > endDate ? endDate : chunkEnd;
+
+    const chunk = await fetchTNOrdersChunk(chunkStart, chunkEndCapped.toISOString());
+    for (const o of chunk) {
+      if (!seen.has(o.id)) {
+        seen.add(o.id);
+        allOrders.push(o);
+      }
+    }
+
+    // Advance to first day of next month
+    cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 1));
   }
 
   return allOrders;

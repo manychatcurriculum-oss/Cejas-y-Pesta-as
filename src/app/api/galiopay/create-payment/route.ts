@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createPaymentLink } from "@/lib/galiopay";
 import { supabase } from "@/lib/supabase";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://gelatina-delta.vercel.app";
-const PRICE = 3900;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const PRICE = 4900;
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,26 +13,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Nombre y email requeridos" }, { status: 400 });
     }
 
-    const referenceId = `gf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const referenceId = `cb_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
     const link = await createPaymentLink({
       items: [
         {
-          title: `Gelatina Fit - Plan Acelerado - ${name.split(" ")[0]}`,
+          title: `Masterclass Cejas & Pestañas - ${name.split(" ")[0]}`,
           quantity: 1,
           unitPrice: PRICE,
           currencyId: "ARS",
         },
       ],
       referenceId,
-      description: "Gelatina Fit - Plan Acelerado Digital",
+      description: "Masterclass Cejas & Pestañas - Acceso de por vida",
       backUrl: {
         success: `${SITE_URL}/success?orderId=${referenceId}`,
         failure: `${SITE_URL}/?error=1`,
       },
     });
 
-    // Save pending order to Supabase
     await supabase.from("galiopay_orders").insert({
       id: referenceId,
       reference_id: referenceId,

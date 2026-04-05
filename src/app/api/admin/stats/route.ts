@@ -64,17 +64,25 @@ export async function GET(request: Request) {
     type GalioOrder = { id: string; name: string; email: string; amount: number; status: string; created_at: string; paid_at: string | null };
     let galioOrders: GalioOrder[] = [];
     try {
-      let galioQuery = supabase
-        .from("galiopay_orders")
-        .select("*")
-        .eq("status", "paid")
-        .gte("created_at", (from || "2026-01-01") + "T03:00:00.000Z");
-      if (to) {
-        const [y, m, d] = to.split("-").map(Number);
-        galioQuery = galioQuery.lte("created_at", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
+      const PAGE_SIZE = 1000;
+      let offset = 0;
+      while (true) {
+        let galioQuery = supabase
+          .from("galiopay_orders")
+          .select("*")
+          .eq("status", "paid")
+          .gte("created_at", (from || "2026-01-01") + "T03:00:00.000Z")
+          .range(offset, offset + PAGE_SIZE - 1);
+        if (to) {
+          const [y, m, d] = to.split("-").map(Number);
+          galioQuery = galioQuery.lte("created_at", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
+        }
+        const { data } = await galioQuery;
+        const page = data || [];
+        galioOrders.push(...page);
+        if (page.length < PAGE_SIZE) break;
+        offset += PAGE_SIZE;
       }
-      const { data } = await galioQuery;
-      galioOrders = data || [];
     } catch (e) {
       console.error("Failed to fetch galiopay orders for stats:", e);
     }

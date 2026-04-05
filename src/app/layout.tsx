@@ -3,13 +3,13 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gelatina Fit - Tu Plan Personalizado para Bajar de Peso",
+  title: "Masterclass Cejas & Pestañas | Curso Online Profesional",
   description:
-    "Descubrí cómo la Gelatina Fit puede ayudarte a alcanzar tu peso ideal. Hacé el quiz gratuito y recibí tu plan personalizado.",
+    "Aprendé cejas, lifting, pestañas pelo a pelo y volumen ruso desde cero. Curso online 100% en video. Acceso de por vida.",
   openGraph: {
-    title: "Gelatina Fit - Tu Plan Personalizado para Bajar de Peso",
+    title: "Masterclass Cejas & Pestañas | Curso Online Profesional",
     description:
-      "Descubrí cómo la Gelatina Fit puede ayudarte a alcanzar tu peso ideal.",
+      "Aprendé cejas, lifting, pestañas pelo a pelo y volumen ruso desde cero. Acceso de por vida.",
     type: "website",
     locale: "es_AR",
   },
@@ -31,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
+        {/* META PIXEL — reemplazar REEMPLAZAR_FB_PIXEL_ID con el nuevo Pixel ID */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
@@ -41,13 +42,13 @@ export default function RootLayout({
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '1577222740011880');
+            fbq('init', 'REEMPLAZAR_FB_PIXEL_ID');
             fbq('track', 'PageView');
           `}
         </Script>
-        {/* Google Analytics Tag */}
+        {/* GOOGLE ANALYTICS — reemplazar REEMPLAZAR_GA4_ID con el nuevo ID */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-W67S89KQCF"
+          src="https://www.googletagmanager.com/gtag/js?id=REEMPLAZAR_GA4_ID"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -56,7 +57,7 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-W67S89KQCF');
+            gtag('config', 'REEMPLAZAR_GA4_ID');
           `}
         </Script>
         <noscript>
@@ -64,7 +65,7 @@ export default function RootLayout({
             height="1"
             width="1"
             style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=1577222740011880&ev=PageView&noscript=1"
+            src="https://www.facebook.com/tr?id=REEMPLAZAR_FB_PIXEL_ID&ev=PageView&noscript=1"
             alt=""
           />
         </noscript>

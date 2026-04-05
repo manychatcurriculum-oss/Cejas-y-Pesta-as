@@ -9,6 +9,7 @@ function baDate(offsetDays = 0): string {
 
 const presets: DateRange[] = [
   { from: baDate(0), to: baDate(0), label: "Hoy" },
+  { from: baDate(-1), to: baDate(-1), label: "Ayer" },
   { from: baDate(-7), to: baDate(0), label: "7 días" },
   { from: baDate(-30), to: baDate(0), label: "30 días" },
   { from: "", to: "", label: "Todo" },

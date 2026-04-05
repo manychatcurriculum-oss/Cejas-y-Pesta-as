@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQuizStore } from "@/store/quizStore";
+import { PRICE, PRODUCT_NAME } from "@/lib/constants";
 
 interface Props {
   open: boolean;
@@ -8,10 +10,17 @@ interface Props {
 }
 
 export default function GalioPayModal({ open, onClose }: Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const { answers } = useQuizStore();
+  const [name, setName] = useState(answers.name || "");
+  const [email, setEmail] = useState(answers.email || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Sync con store si cambian
+  useEffect(() => {
+    if (answers.name) setName(answers.name);
+    if (answers.email) setEmail(answers.email);
+  }, [answers.name, answers.email]);
 
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
@@ -51,22 +60,22 @@ export default function GalioPayModal({ open, onClose }: Props) {
       {/* Modal */}
       <div className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[92dvh] sm:max-h-[90vh]">
 
-        {/* Top pink bar — fixed, never scrolls */}
-        <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4 rounded-t-3xl sm:rounded-t-3xl shrink-0">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-pink-500 to-pink-600 px-6 py-4 rounded-t-3xl shrink-0">
           <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white text-xl leading-none">✕</button>
-          <p className="text-white/80 text-xs font-semibold uppercase tracking-wide mb-0.5">Pago por transferencia bancaria</p>
-          <h2 className="text-white text-xl font-extrabold">¿A dónde enviamos tu plan?</h2>
+          <p className="text-white/80 text-xs font-semibold uppercase tracking-wide mb-0.5">Pago seguro</p>
+          <h2 className="text-white text-xl font-extrabold">¿A dónde enviamos tu acceso?</h2>
         </div>
 
-        {/* Scrollable content */}
+        {/* Content */}
         <div className="overflow-y-auto overscroll-contain p-6 space-y-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 
-          {/* How it works — combate el miedo */}
+          {/* How it works */}
           <div className="bg-green-50 border border-green-200 rounded-xl p-3 space-y-1.5">
             <p className="text-green-800 text-xs font-bold uppercase tracking-wide">¿Cómo funciona?</p>
             {[
               { n: "1", text: "Pagás en segundos de forma segura" },
-              { n: "2", text: "Tu plan llega al email al instante" },
+              { n: "2", text: "Tu acceso llega al email al instante" },
               { n: "3", text: "Empezás hoy. Acceso de por vida" },
             ].map((s) => (
               <div key={s.n} className="flex items-center gap-2">
@@ -79,12 +88,12 @@ export default function GalioPayModal({ open, onClose }: Props) {
           {/* Price */}
           <div className="flex items-center justify-between bg-pink-50 border border-pink-200 rounded-2xl px-4 py-3">
             <div>
-              <p className="text-sm font-bold text-gray-900">Plan Acelerado Gelatina Fit</p>
-              <p className="text-xs text-gray-500">15 guías · Pago único · Sin suscripción</p>
+              <p className="text-sm font-bold text-gray-900">{PRODUCT_NAME}</p>
+              <p className="text-xs text-gray-500">13 módulos · Pago único · Sin suscripción</p>
             </div>
             <div className="text-right">
-              <p className="text-xl font-extrabold text-pink-600">$3.900</p>
-              <p className="text-xs text-gray-400">ARS</p>
+              <p className="text-xl font-extrabold text-pink-600">${PRICE.toLocaleString("es-AR")}</p>
+              <p className="text-xs text-gray-400">ARS 🇦🇷</p>
             </div>
           </div>
 
@@ -104,7 +113,7 @@ export default function GalioPayModal({ open, onClose }: Props) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tu email <span className="text-pink-500 font-bold">← acá llega tu Plan Personalizado - Gelatina Fit</span>
+                Tu email <span className="text-pink-500 font-bold">← acá llega tu acceso</span>
               </label>
               <input
                 type="email"
@@ -114,7 +123,7 @@ export default function GalioPayModal({ open, onClose }: Props) {
                 required
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300"
               />
-              <p className="text-xs text-gray-400 mt-1">Revisá también la carpeta de spam por las dudas</p>
+              <p className="text-xs text-gray-400 mt-1">Revisá también la carpeta de spam</p>
             </div>
 
             {error && (
@@ -130,7 +139,7 @@ export default function GalioPayModal({ open, onClose }: Props) {
             </button>
           </form>
 
-          {/* Guarantee — el gran killer del miedo */}
+          {/* Guarantee */}
           <div className="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 flex items-start gap-3">
             <span className="text-2xl shrink-0">🛡️</span>
             <div>

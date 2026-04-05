@@ -1,0 +1,367 @@
+================================================================================
+         GUIA DE CONEXION DE GALIO PAY - BASADA EN GELATINA FIT
+================================================================================
+
+Documento generado el 26/02/2026
+Referencia: Proyecto gelatina-fit (Next.js + Supabase)
+
+Este documento describe paso a paso como fue conectado Galio Pay en el proyecto
+Gelatina Fit, para replicar la misma integracion en otro proyecto.
+
+================================================================================
+ 1. VARIABLES DE ENTORNO NECESARIAS
+================================================================================
+
+Agregar en .env.local:
+
+  GALIOPAY_API_KEY=tu_api_key_de_galiopay
+  GALIOPAY_CLIENT_ID=tu_client_id_de_galiopay
+  GALIOPAY_API_BASE=https://pay.galio.app/api
+
+  # Para el envio de emails post-pago
+  GMAIL_USER=tu_email@gmail.com
+  GMAIL_APP_PASSWORD=tu_app_password_de_gmail
+
+  # Para la base de datos
+  SUPABASE_URL=tu_url_de_supabase
+  SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+
+  # URL del sitio (para redirects)
+  NEXT_PUBLIC_SITE_URL=https://tu-dominio.com
+
+  # Facebook CAPI (opcional, para tracking de conversiones)
+  FB_ACCESS_TOKEN=tu_fb_access_token
+  FB_PIXEL_ID=tu_pixel_id
+
+================================================================================
+ 2. LIBRERIA / SDK WRAPPER  (src/lib/galiopay.ts)
+================================================================================
+
+Este archivo es el nucleo de la conexion con la API de Galio Pay.
+Se comunica con https://pay.galio.app/api
+
+AUTENTICACION:
+  - Header "Authorization": Bearer {GALIOPAY_API_KEY}
+  - Header "x-client-id": {GALIOPAY_CLIENT_ID}
+  - Header "Content-Type": application/json
+
+FUNCIONES PRINCIPALES:
+
+  a) createPaymentLink(payload)
+     - Metodo: POST
+     - Endpoint: /payment-links
+     - Payload:
+       {
+         items: [
+           {
+             title: "Nombre del producto",
+             quantity: 1,
+             unitPrice: 3900,       // precio en centavos o unidad segun config
+             currencyId: "ARS"
+           }
+         ],
+         referenceId: "gf_1234567890_abc123",   // ID unico generado por vos
+         description: "Descripcion opcional",
+         backUrl: {
+           success: "https://tu-dominio.com/success?orderId=referenceId",
+           failure: "https://tu-dominio.com/?error=1"
+         }
+       }
+     - Respuesta:
+       {
+         id: "id_del_link",
+         url: "https://pay.galio.app/...",    // URL a donde redirigir al usuario
+         status: "active"
+       }
+
+  b) getPayment(paymentId)
+     - Metodo: GET
+     - Endpoint: /payments/{paymentId}
+     - Respuesta:
+       {
+         id: "payment_id",
+         amount: 3900,
+         currency: "ARS",
+         status: "approved",
+         date: "2026-01-15T...",
+         netAmount: 3700
+       }
+
+CODIGO COMPLETO DEL WRAPPER:
+
+  const API_BASE = process.env.GALIOPAY_API_BASE || "https://pay.galio.app/api";
+  const API_KEY = process.env.GALIOPAY_API_KEY!;
+  const CLIENT_ID = process.env.GALIOPAY_CLIENT_ID!;
+
+  // Headers comunes para todas las requests
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${API_KEY}`,
+    "x-client-id": CLIENT_ID,
+  };
+
+  // Crear link de pago
+  export async function createPaymentLink(payload) {
+    const res = await fetch(`${API_BASE}/payment-links`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`GalioPay error: ${res.status}`);
+    return res.json();
+  }
+
+  // Consultar un pago
+  export async function getPayment(paymentId) {
+    const res = await fetch(`${API_BASE}/payments/${paymentId}`, {
+      method: "GET",
+      headers,
+    });
+    if (!res.ok) throw new Error(`GalioPay error: ${res.status}`);
+    return res.json();
+  }
+
+================================================================================
+ 3. ENDPOINT DE CREACION DE PAGO  (src/app/api/galiopay/create-payment/route.ts)
+================================================================================
+
+Metodo: POST
+Ruta: /api/galiopay/create-payment
+
+Request Body:
+  {
+    "name": "Nombre del cliente",
+    "email": "cliente@email.com"
+  }
+
+FLUJO:
+  1. Validar que name y email esten presentes
+  2. Generar referenceId unico: `gf_${Date.now()}_${random}`
+  3. Llamar a createPaymentLink() con:
+     - items: [{ title, quantity: 1, unitPrice: PRECIO, currencyId: "ARS" }]
+     - referenceId: el generado
+     - backUrl.success: `${SITE_URL}/success?orderId=${referenceId}`
+     - backUrl.failure: `${SITE_URL}/?error=1`
+  4. Guardar orden pendiente en Supabase (tabla galiopay_orders):
+     - id (uuid), reference_id, name, email, amount, status: "pending"
+  5. Retornar: { url: link.url, referenceId }
+
+El frontend recibe la URL y redirige al usuario a Galio Pay.
+
+================================================================================
+ 4. WEBHOOK DE CONFIRMACION  (src/app/api/galiopay/webhook/route.ts)
+================================================================================
+
+Metodo: POST
+Ruta: /api/galiopay/webhook
+
+IMPORTANTE: Configurar esta URL en el panel de Galio Pay como webhook de
+notificacion de pagos: https://tu-dominio.com/api/galiopay/webhook
+
+Payload que envia Galio Pay:
+  {
+    "paymentId": "string",
+    "status": "approved" | "paid",
+    "referenceId": "gf_..."
+  }
+
+FLUJO:
+  1. Recibir el payload del webhook
+  2. Verificar si status === "approved" || status === "paid"
+  3. Buscar la orden en Supabase por reference_id
+  4. Verificar que no sea duplicado (orden ya pagada)
+  5. Actualizar orden en Supabase:
+     - status: "paid"
+     - payment_id: paymentId
+     - paid_at: new Date()
+  6. Enviar email de entrega al cliente (sendDeliveryEmail)
+  7. (Opcional) Enviar evento Purchase a Facebook CAPI
+  8. Retornar 200 OK siempre (para evitar reintentos)
+
+MANEJO DE DUPLICADOS:
+  - Si la orden ya tiene status "paid", retornar 200 con { duplicate: true }
+  - Esto previene envios de email duplicados
+
+================================================================================
+ 5. TABLA EN SUPABASE (galiopay_orders)
+================================================================================
+
+Crear la siguiente tabla en Supabase:
+
+  CREATE TABLE galiopay_orders (
+    id            UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    reference_id  TEXT NOT NULL UNIQUE,
+    name          TEXT NOT NULL,
+    email         TEXT NOT NULL,
+    amount        NUMERIC NOT NULL,
+    status        TEXT DEFAULT 'pending',       -- pending | paid | failed
+    payment_id    TEXT,
+    created_at    TIMESTAMPTZ DEFAULT now(),
+    paid_at       TIMESTAMPTZ
+  );
+
+================================================================================
+ 6. COMPONENTE FRONTEND - MODAL DE CHECKOUT (GalioPayModal.tsx)
+================================================================================
+
+Componente React (client-side) que:
+  1. Muestra un modal con formulario (nombre y email)
+  2. Muestra detalles del producto y precio
+  3. Al enviar el formulario:
+     a. Hace POST a /api/galiopay/create-payment con { name, email }
+     b. Recibe { url, referenceId }
+     c. Redirige al usuario: window.location.href = data.url
+  4. El usuario completa el pago en Galio Pay
+  5. Galio Pay redirige al usuario a /success?orderId={referenceId}
+
+================================================================================
+ 7. PAGINA DE EXITO  (src/app/success/page.tsx)
+================================================================================
+
+Ruta: /success?orderId={referenceId}
+
+FLUJO:
+  1. Extraer orderId de los query params
+  2. Prevenir disparo duplicado de pixel usando sessionStorage
+  3. Disparar evento de Purchase en Facebook Pixel (client-side)
+  4. Mostrar mensaje de confirmacion al usuario
+  5. Indicar que revise su email (incluyendo spam)
+  6. Link a la pagina de recursos (/gracias)
+
+================================================================================
+ 8. SISTEMA DE EMAILS  (src/lib/email.ts)
+================================================================================
+
+Usa Nodemailer con Gmail SMTP:
+
+  Configuracion:
+    service: "gmail"
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+
+  Funcion: sendDeliveryEmail(to, name)
+    - From: "Tu Marca" <tu_email>
+    - Subject: personalizado con el nombre
+    - Body: HTML con link a la pagina de recursos
+
+  NOTA: Para usar Gmail necesitas generar una "App Password" en la
+  configuracion de seguridad de tu cuenta Google.
+
+================================================================================
+ 9. PANEL DE ADMINISTRACION
+================================================================================
+
+Archivos:
+  - src/app/admin/page.tsx (pagina principal)
+  - src/components/admin/GalioPayTable.tsx (tabla de ordenes)
+  - src/app/api/admin/galiopay-orders/route.ts (listar ordenes)
+  - src/app/api/admin/galiopay-resend/route.ts (reenviar email)
+
+Funcionalidades:
+  - Ver todas las ordenes de GalioPay con paginacion
+  - Filtrar por rango de fechas
+  - Ver metricas: total ordenes, ordenes pagadas, ingresos totales
+  - Reenviar email de entrega manualmente
+  - Estados con badges de color:
+    - Pagado (verde)
+    - Pendiente (amarillo)
+    - Fallido (rojo)
+
+================================================================================
+ 10. FLUJO COMPLETO DE PAGO (RESUMEN)
+================================================================================
+
+  USUARIO                    TU APP                      GALIO PAY
+  ------                    ------                      ---------
+
+  1. Click "Comprar"
+        |
+        v
+  2. Llena nombre/email
+     en el modal
+        |
+        v
+  3. ----POST---->  /api/galiopay/create-payment
+                         |
+                         v
+                    Guarda orden "pending"
+                    en Supabase
+                         |
+                         v
+                    -----POST----->  /payment-links
+                                         |
+                                         v
+                                    Crea link de pago
+                                         |
+                    <----{ url }----------+
+                         |
+  4. <---redirect--------+
+        |
+        v
+  5. Paga en Galio Pay --------------------------->  Procesa pago
+                                                         |
+  6.                                     <---webhook-----+
+                                         |
+                                    /api/galiopay/webhook
+                                         |
+                                    Actualiza orden "paid"
+                                    Envia email
+                                    Envia evento FB CAPI
+                                         |
+  7. Galio Pay redirige
+     a /success?orderId=xxx
+        |
+        v
+  8. Ve pagina de exito
+     Recibe email con recursos
+
+================================================================================
+ 11. CHECKLIST PARA REPLICAR EN OTRO PROYECTO
+================================================================================
+
+  [ ] 1. Crear cuenta en Galio Pay (https://pay.galio.app)
+  [ ] 2. Obtener API_KEY y CLIENT_ID del panel de Galio Pay
+  [ ] 3. Configurar webhook URL en panel de Galio Pay
+  [ ] 4. Crear tabla galiopay_orders en Supabase (ver seccion 5)
+  [ ] 5. Copiar y adaptar src/lib/galiopay.ts (wrapper de la API)
+  [ ] 6. Crear endpoint /api/galiopay/create-payment
+  [ ] 7. Crear endpoint /api/galiopay/webhook
+  [ ] 8. Crear componente de checkout (modal o pagina)
+  [ ] 9. Crear pagina de exito (/success)
+  [ ] 10. Configurar envio de emails (Gmail + Nodemailer)
+  [ ] 11. Agregar variables de entorno en .env.local
+  [ ] 12. (Opcional) Crear panel admin para ver ordenes
+  [ ] 13. (Opcional) Configurar Facebook CAPI para tracking
+
+================================================================================
+ 12. ENDPOINTS DE LA API DE GALIO PAY UTILIZADOS
+================================================================================
+
+  Base URL: https://pay.galio.app/api
+
+  +------------------+--------+---------------------------+
+  | Endpoint         | Metodo | Descripcion               |
+  +------------------+--------+---------------------------+
+  | /payment-links   | POST   | Crear link de pago        |
+  | /payments/{id}   | GET    | Consultar estado de pago  |
+  +------------------+--------+---------------------------+
+
+  Headers requeridos en TODAS las requests:
+    Authorization: Bearer {API_KEY}
+    x-client-id: {CLIENT_ID}
+    Content-Type: application/json
+
+================================================================================
+ 13. MANEJO DE ERRORES
+================================================================================
+
+  - Request invalido (falta name/email): 400 Bad Request
+  - Error en API de Galio Pay: 500 Internal Server Error
+  - Webhook: SIEMPRE retornar 200 OK (logear errores internamente)
+  - Pagos duplicados: Detectar via status en Supabase, retornar 200
+
+================================================================================
+ FIN DEL DOCUMENTO
+================================================================================

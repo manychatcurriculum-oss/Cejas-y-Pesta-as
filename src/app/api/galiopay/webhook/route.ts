@@ -18,7 +18,7 @@ async function sendFBPurchaseEvent(opts: {
 
   try {
     const res = await fetch(
-      "https://graph.facebook.com/v19.0/1577222740011880/events",
+      "https://graph.facebook.com/v19.0/REEMPLAZAR_FB_PIXEL_ID/events",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -29,7 +29,7 @@ async function sendFBPurchaseEvent(opts: {
               event_time: Math.floor(Date.now() / 1000),
               event_id: opts.eventId,
               action_source: "website",
-              event_source_url: "https://gelatina-delta.vercel.app/success",
+              event_source_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/success`,
               user_data: {
                 em: [sha256(opts.email)],
                 fn: [sha256(opts.firstName)],
@@ -37,9 +37,9 @@ async function sendFBPurchaseEvent(opts: {
               custom_data: {
                 value: opts.amount,
                 currency: "ARS",
-                content_ids: ["gelatina-fit-plan"],
+                content_ids: ["cejas-pestanas-masterclass"],
                 content_type: "product",
-                content_name: "Gelatina Fit - Plan Acelerado",
+                content_name: "Masterclass Cejas & Pestañas",
               },
             },
           ],
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       email: order.email,
       firstName,
       amount: order.amount || 3900,
-      eventId: `gp_${referenceId}`,
+      eventId: `cb_${referenceId}`,
     });
 
     return NextResponse.json({ received: true }, { status: 200 });

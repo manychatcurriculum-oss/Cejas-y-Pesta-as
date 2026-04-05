@@ -71,7 +71,7 @@ export default function LivePurchaseToast() {
           <p className="text-xs text-gray-800 font-semibold leading-tight">
             {toast.name} de {toast.city}
           </p>
-          <p className="text-[10px] text-gray-500">acaba de obtener su plan · {toast.time}</p>
+          <p className="text-[10px] text-gray-500">acaba de acceder al curso · {toast.time}</p>
         </div>
       </div>
     </div>

@@ -1,19 +1,17 @@
 import { supabase } from "@/lib/supabase";
-import type { QuizAnswers, BMIResult } from "@/store/types";
+import type { QuizAnswers } from "@/store/types";
 
 export interface QuizEntry {
   id: string;
   timestamp: string;
   answers: QuizAnswers;
-  bmiResult: BMIResult | null;
 }
 
-export async function appendQuizEntry(answers: QuizAnswers, bmiResult: BMIResult | null, id?: string): Promise<QuizEntry> {
+export async function appendQuizEntry(answers: QuizAnswers, id?: string): Promise<QuizEntry> {
   const entry = {
     id: id || `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     timestamp: new Date().toISOString(),
     answers,
-    bmi_result: bmiResult,
   };
 
   const { error } = await supabase.from("quiz_entries").insert(entry);
@@ -22,7 +20,7 @@ export async function appendQuizEntry(answers: QuizAnswers, bmiResult: BMIResult
     throw error;
   }
 
-  return { id: entry.id, timestamp: entry.timestamp, answers, bmiResult };
+  return { id: entry.id, timestamp: entry.timestamp, answers };
 }
 
 export async function getQuizEntries(options?: {
@@ -41,11 +39,9 @@ export async function getQuizEntries(options?: {
     .range(offset, offset + limit - 1);
 
   if (options?.from) {
-    // Midnight Argentina time (UTC-3) = 03:00 UTC same date
     query = query.gte("timestamp", options.from + "T03:00:00.000Z");
   }
   if (options?.to) {
-    // 23:59:59.999 Argentina = next calendar day 02:59:59.999 UTC
     const [y, m, d] = options.to.split("-").map(Number);
     query = query.lte("timestamp", new Date(Date.UTC(y, m - 1, d + 1, 2, 59, 59, 999)).toISOString());
   }
@@ -61,7 +57,6 @@ export async function getQuizEntries(options?: {
     id: row.id,
     timestamp: row.timestamp,
     answers: row.answers,
-    bmiResult: row.bmi_result,
   }));
 }
 

@@ -3,7 +3,7 @@ import { appendQuizEntry } from "@/lib/quiz-storage";
 
 export async function POST(req: Request) {
   try {
-    const { answers, bmiResult, quizId: clientQuizId } = await req.json();
+    const { answers, quizId: clientQuizId } = await req.json();
 
     if (!answers) {
       return NextResponse.json(
@@ -12,10 +12,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Persist quiz entry for admin dashboard — use client-generated ID if provided
     let quizId: string | null = null;
     try {
-      const entry = await appendQuizEntry(answers, bmiResult, clientQuizId);
+      const entry = await appendQuizEntry(answers, clientQuizId);
       quizId = entry.id;
     } catch (e) {
       console.error("Failed to persist quiz entry:", e);

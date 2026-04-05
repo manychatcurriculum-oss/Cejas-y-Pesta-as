@@ -1,6 +1,6 @@
 "use client";
 
-import { PRICE, ORIGINAL_PRICE } from "@/lib/constants";
+import { PRICE, PRICE_ORIGINAL } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
 interface StickyCheckoutBarProps {
@@ -44,7 +44,7 @@ export default function StickyCheckoutBar({ onCheckout, loading }: StickyCheckou
               lineHeight: 1.2,
             }}
           >
-            {formatPrice(ORIGINAL_PRICE)}
+            {formatPrice(PRICE_ORIGINAL)}
           </p>
           <p style={{ fontSize: "20px", fontWeight: 800, margin: 0, lineHeight: 1.1 }}>
             {formatPrice(PRICE)}{" "}

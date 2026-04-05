@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { trackBeginCheckout } from "@/lib/analytics";
 import { PRODUCT_NAME, PRICE, PRICE_ORIGINAL, BENEFITS, FAQ_ITEMS, COMPARISON_TABLE, DELIVERABLES, CURRICULUM } from "@/lib/constants";
 import GalioPayModal from "@/components/sales/GalioPayModal";
@@ -79,8 +80,18 @@ export default function Step06Sales() {
           <span className="text-pink-600">Empezá a cobrar este mes.</span>
         </h2>
         <p className="text-gray-600">
-          13 módulos en video + manual PDF. Todo lo que necesitás para atender clientas desde tu casa — sin experiencia previa.
+          13 módulos en video. Todo lo que necesitás para atender clientas desde tu casa — sin experiencia previa.
         </p>
+      </div>
+
+      {/* ANTES / DESPUÉS */}
+      <div className="rounded-2xl overflow-hidden relative w-full aspect-video">
+        <Image
+          src="/images/resultado-final.webp"
+          alt="Resultado antes y después del curso de cejas y pestañas"
+          fill
+          className="object-cover"
+        />
       </div>
 
       {/* 2. SOCIAL PROOF */}
@@ -128,6 +139,28 @@ export default function Step06Sales() {
             <div key={item.text} className="flex items-start gap-3 bg-white rounded-xl px-4 py-3 border border-pink-100">
               <span className="text-xl shrink-0">{item.icon}</span>
               <span className="text-sm text-gray-700">{item.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* TÉCNICAS — GRID DE IMÁGENES */}
+      <div className="space-y-3">
+        <div className="text-center">
+          <p className="text-xs font-bold text-pink-500 uppercase tracking-wide">Lo que vas a dominar</p>
+          <h3 className="text-xl font-bold text-gray-900 mt-1">4 técnicas de alta demanda</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { src: "/images/tecnicas/diseno-cejas.webp",      label: "Diseño de cejas" },
+            { src: "/images/tecnicas/lifting-pestanas.webp",  label: "Lifting de pestañas" },
+            { src: "/images/tecnicas/pelo-a-pelo.webp",       label: "Pestañas pelo a pelo" },
+            { src: "/images/tecnicas/volumen-ruso.webp",      label: "Volumen ruso" },
+          ].map((t) => (
+            <div key={t.label} className="relative rounded-2xl overflow-hidden aspect-square">
+              <Image src={t.src} alt={t.label} fill className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <p className="absolute bottom-2 left-0 right-0 text-center text-white text-xs font-bold px-2">{t.label}</p>
             </div>
           ))}
         </div>
@@ -230,6 +263,19 @@ export default function Step06Sales() {
       <div className="space-y-3">
         <PinkCTA label="Sí, quiero este curso →" sublabel="Garantía de devolución 30 días" />
         <DeliveryBadge />
+      </div>
+
+      {/* WORKSPACE IMAGE */}
+      <div className="space-y-2">
+        <div className="rounded-2xl overflow-hidden relative w-full aspect-video">
+          <Image
+            src="/images/workspace.webp"
+            alt="Kit profesional de cejas y pestañas"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <p className="text-center text-xs text-gray-400">El kit de herramientas que necesitás — accesible y fácil de conseguir en Argentina</p>
       </div>
 
       {/* 13. ESCASEZ */}

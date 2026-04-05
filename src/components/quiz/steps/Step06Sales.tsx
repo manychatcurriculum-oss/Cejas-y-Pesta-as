@@ -173,6 +173,18 @@ export default function Step06Sales() {
           <p className="text-sm text-gray-500">13 módulos en video · Acceso de por vida</p>
         </div>
 
+        {/* Ebook mockup image */}
+        <div className="w-full flex justify-center">
+          <div className="relative w-64 h-72">
+            <Image
+              src="/images/ebook-mockup3d.webp"
+              alt="Módulos del curso Cejas & Pestañas"
+              fill
+              className="object-contain drop-shadow-xl"
+            />
+          </div>
+        </div>
+
         {/* Main deliverable */}
         <div className="flex items-start gap-3 rounded-xl p-4 bg-gradient-to-r from-pink-50 to-white border-2 border-pink-400">
           <span className="text-green-500 shrink-0 mt-0.5 font-bold text-lg">✓</span>

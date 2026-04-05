@@ -62,23 +62,23 @@ export function trackQuizComplete() {
 }
 
 export function trackBeginCheckout(price: number) {
-  trackEvent("InitiateCheckout", { // Meta Standard Name
+  trackEvent("InitiateCheckout", {
     value: price,
     currency: "ARS",
-    content_name: "Gelatina Fit - Plan Personalizado",
-    content_category: "Plan de Salud",
-    content_ids: ["gelatina-fit-plan"],
+    content_name: "Masterclass Cejas & Pestañas",
+    content_category: "Belleza",
+    content_ids: ["cejas-pestanas-masterclass"],
     content_type: "product",
   });
 }
 
 export function trackPurchase(price: number, eventId?: string) {
-  trackEvent("Purchase", { // Meta Standard Name
+  trackEvent("Purchase", {
     value: price,
     currency: "ARS",
-    content_name: "Gelatina Fit - Plan Personalizado",
-    content_category: "Plan de Salud",
-    content_ids: ["gelatina-fit-plan"],
+    content_name: "Masterclass Cejas & Pestañas",
+    content_category: "Belleza",
+    content_ids: ["cejas-pestanas-masterclass"],
     content_type: "product",
   }, eventId);
 }

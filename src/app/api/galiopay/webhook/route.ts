@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log("GalioPay webhook received:", JSON.stringify(body));
 
-    const { paymentId, status, referenceId } = body;
+    const { id: paymentId, status, referenceId } = body;
 
     const isPaid = status === "approved" || status === "paid";
     if (!isPaid) {

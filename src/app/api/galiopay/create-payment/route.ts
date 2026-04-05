@@ -32,14 +32,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await supabase.from("galiopay_orders").insert({
-      id: referenceId,
+    const { error: insertError } = await supabase.from("galiopay_orders").insert({
       reference_id: referenceId,
       name,
       email,
       amount: PRICE,
       status: "pending",
     });
+    if (insertError) console.error("Supabase insert error:", insertError.message);
 
     return NextResponse.json({ url: link.url, referenceId }, { status: 201 });
   } catch (error: unknown) {

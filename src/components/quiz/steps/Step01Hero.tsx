@@ -41,8 +41,7 @@ export default function Step01Hero() {
       <div className="space-y-2">
         <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
           Aprendé las técnicas de belleza{" "}
-          <span className="text-pink-600">más pedidas y mejor pagadas</span>{" "}
-          de Argentina
+          <span className="text-pink-600">más pedidas y mejor pagadas</span>
         </h1>
         <p className="text-gray-600 text-sm leading-relaxed">
           Cejas perfectas, lifting, pestañas pelo a pelo y volumen ruso. Todo en un solo curso, desde tu casa, a tu ritmo.
@@ -85,7 +84,7 @@ export default function Step01Hero() {
       </div>
 
       <Button onClick={handleStart} pulse>
-        Ver precio y acceder →
+        Acceder →
       </Button>
 
       <p className="text-center text-xs text-gray-400">

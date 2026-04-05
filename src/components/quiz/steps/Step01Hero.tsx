@@ -19,7 +19,7 @@ export default function Step01Hero() {
     <div className="flex flex-col items-center text-center space-y-5 pt-2">
 
       {/* Hero image */}
-      <div className="w-full rounded-2xl overflow-hidden aspect-[4/3] relative bg-pink-50">
+      <div className="w-full rounded-2xl overflow-hidden relative bg-pink-50" style={{ height: "180px" }}>
         <Image
           src="/images/quiz-hero.webp"
           alt="Técnica profesional de cejas y pestañas"

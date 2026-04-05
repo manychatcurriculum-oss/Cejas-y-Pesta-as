@@ -5,19 +5,19 @@ import { useQuizStore } from "@/store/quizStore";
 const LEVELS = [
   {
     value: "beginner",
-    emoji: "🌱",
+    emoji: "🌸",
     title: "Soy principiante",
     description: "Nunca tomé un curso de cejas o pestañas",
   },
   {
     value: "intermediate",
-    emoji: "📚",
+    emoji: "✨",
     title: "Tengo algo de experiencia",
     description: "Hice algún curso o practiqué por mi cuenta",
   },
   {
     value: "professional",
-    emoji: "💼",
+    emoji: "💅",
     title: "Ya trabajo en belleza",
     description: "Quiero sumar técnicas nuevas o perfeccionarme",
   },

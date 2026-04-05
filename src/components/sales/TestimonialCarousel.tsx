@@ -30,7 +30,7 @@ export default function TestimonialCarousel() {
   return (
     <div className="space-y-3">
       <h3 className="text-xl font-bold text-gray-900 text-center">
-        Lo que dicen nuestras clientas
+        Lo que dicen nuestras estudiantes
       </h3>
 
       <div

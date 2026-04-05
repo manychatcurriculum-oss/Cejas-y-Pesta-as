@@ -1,7 +1,7 @@
 "use client";
 
 import { useCountdown } from "@/hooks/useCountdown";
-import { PRICE, ORIGINAL_PRICE } from "@/lib/constants";
+import { PRICE, PRICE_ORIGINAL } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
 export default function CountdownTimer() {
@@ -21,7 +21,7 @@ export default function CountdownTimer() {
     <div className="bg-gradient-to-r from-pink-600 to-pink-500 rounded-xl p-4 text-center text-white">
       {/* Precio destacado */}
       <div className="mb-3">
-        <p className="text-sm opacity-80 line-through">{formatPrice(ORIGINAL_PRICE)}</p>
+        <p className="text-sm opacity-80 line-through">{formatPrice(PRICE_ORIGINAL)}</p>
         <p className="text-5xl font-extrabold tracking-tight leading-none">
           {formatPrice(PRICE)}
         </p>
@@ -38,7 +38,7 @@ export default function CountdownTimer() {
         {formatted}
       </p>
       <p className="text-xs opacity-80 mt-1">
-        Después de este tiempo, el precio vuelve a {formatPrice(ORIGINAL_PRICE)}
+        Después de este tiempo, el precio vuelve a {formatPrice(PRICE_ORIGINAL)}
       </p>
     </div>
   );

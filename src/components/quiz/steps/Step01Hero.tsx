@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useQuizStore } from "@/store/quizStore";
 import { trackQuizStart } from "@/lib/analytics";
 import Button from "@/components/ui/Button";
@@ -15,10 +16,17 @@ export default function Step01Hero() {
   };
 
   return (
-    <div className="flex flex-col items-center text-center space-y-5 pt-4">
-      {/* Icono animado */}
-      <div className="w-20 h-20 rounded-full bg-pink-100 flex items-center justify-center">
-        <span className="text-4xl">✨</span>
+    <div className="flex flex-col items-center text-center space-y-5 pt-2">
+
+      {/* Hero image */}
+      <div className="w-full rounded-2xl overflow-hidden aspect-[4/3] relative bg-pink-50">
+        <Image
+          src="/images/quiz-hero.webp"
+          alt="Técnica profesional de cejas y pestañas"
+          fill
+          className="object-cover"
+          priority
+        />
       </div>
 
       <div className="space-y-3">
@@ -27,12 +35,10 @@ export default function Step01Hero() {
         </p>
         <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
           ¿Cuánto sabés sobre el arte de las{" "}
-          <span className="text-pink-600">cejas y pestañas</span>?
+          <span className="text-pink-600">cejas y pestañas?</span>
         </h1>
         <p className="text-gray-600 leading-relaxed">
-          Respondé 3 preguntas rápidas y te armamos{" "}
-          <span className="font-semibold text-pink-600">un camino personalizado</span>{" "}
-          para convertirte en profesional.
+          Respondé 3 preguntas rápidas y descubrí si este curso es para vos.
         </p>
       </div>
 

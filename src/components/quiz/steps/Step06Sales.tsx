@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { trackBeginCheckout } from "@/lib/analytics";
-import { PRODUCT_NAME, PRICE, PRICE_ORIGINAL, BENEFITS, FAQ_ITEMS, COMPARISON_TABLE, DELIVERABLES } from "@/lib/constants";
+import { PRODUCT_NAME, PRICE, PRICE_ORIGINAL, BENEFITS, FAQ_ITEMS, COMPARISON_TABLE, DELIVERABLES, CURRICULUM } from "@/lib/constants";
 import GalioPayModal from "@/components/sales/GalioPayModal";
 import CountdownTimer from "@/components/sales/CountdownTimer";
 import GuaranteeSection from "@/components/sales/GuaranteeSection";
@@ -92,7 +92,7 @@ export default function Step06Sales() {
           </div>
           <div className="w-px h-10 bg-gray-100" />
           <div className="text-center">
-            <p className="text-2xl font-extrabold text-pink-600">⭐ 4.9</p>
+            <p className="text-2xl font-extrabold text-pink-600">⭐ 5.0</p>
             <p className="text-xs text-gray-500 mt-0.5">calificación<br/>promedio</p>
           </div>
           <div className="w-px h-10 bg-gray-100" />
@@ -134,25 +134,64 @@ export default function Step06Sales() {
       </div>
 
       {/* 6. QUÉ INCLUYE */}
-      <div className="bg-white rounded-2xl p-5 border border-pink-100 space-y-4">
-        <h3 className="text-xl font-extrabold text-gray-900 text-center">Lo que recibís al comprar</h3>
-        <div className="space-y-3">
-          {DELIVERABLES.map((item) => (
-            <div key={item.name} className={`flex items-start gap-3 rounded-xl p-3.5 ${item.isMain ? "bg-gradient-to-r from-pink-50 to-white border-2 border-pink-400" : "bg-gray-50 border border-gray-100"}`}>
-              <span className="text-green-500 shrink-0 mt-0.5 font-bold">✓</span>
+      <div className="space-y-4">
+        <div className="text-center space-y-1">
+          <h3 className="text-xl font-extrabold text-gray-900">Todo lo que aprendés en el curso</h3>
+          <p className="text-sm text-gray-500">13 módulos en video · Acceso de por vida</p>
+        </div>
+
+        {/* Main deliverable */}
+        <div className="flex items-start gap-3 rounded-xl p-4 bg-gradient-to-r from-pink-50 to-white border-2 border-pink-400">
+          <span className="text-green-500 shrink-0 mt-0.5 font-bold text-lg">✓</span>
+          <div>
+            <p className="font-bold text-pink-700">{DELIVERABLES[0].name}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{DELIVERABLES[0].description}</p>
+          </div>
+        </div>
+
+        {/* Curriculum grid */}
+        <div className="bg-white rounded-2xl border border-pink-100 p-4 space-y-2">
+          <p className="text-xs font-bold text-pink-500 uppercase tracking-wide text-center mb-3">Lo que cubrimos módulo a módulo</p>
+          {CURRICULUM.map((item) => (
+            <div key={item.title} className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
+              <span className="text-xl shrink-0 leading-tight">{item.icon}</span>
               <div>
-                <p className={`font-bold text-sm ${item.isMain ? "text-pink-700" : "text-gray-800"}`}>{item.name}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
+                <p className="font-semibold text-gray-800 text-sm">{item.title}</p>
+                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
               </div>
             </div>
           ))}
-          <div className="flex items-start gap-3 rounded-xl p-3.5 bg-gray-50 border border-gray-100">
-            <span className="text-green-500 shrink-0 mt-0.5 font-bold">✓</span>
-            <div>
-              <p className="font-bold text-sm text-gray-800">Certificado digital al completar</p>
-              <p className="text-xs text-gray-500 mt-0.5">Para mostrar a tus clientas y en tus redes</p>
-            </div>
+        </div>
+
+        {/* Extras */}
+        <div className="flex items-start gap-3 rounded-xl p-3.5 bg-gray-50 border border-gray-100">
+          <span className="text-green-500 shrink-0 mt-0.5 font-bold">✓</span>
+          <div>
+            <p className="font-bold text-sm text-gray-800">Certificado digital al completar</p>
+            <p className="text-xs text-gray-500 mt-0.5">Para mostrar a tus clientas y en tus redes</p>
           </div>
+        </div>
+      </div>
+
+      {/* CÓMO FUNCIONA */}
+      <div className="space-y-3">
+        <h3 className="text-xl font-bold text-gray-900 text-center">¿Cómo funciona?</h3>
+        <div className="space-y-3">
+          {[
+            { step: "1", title: "Pagás por transferencia bancaria", desc: "En pesos argentinos 🇦🇷, pago único. Sin cuotas, sin suscripciones, sin dólares." },
+            { step: "2", title: "Acceso inmediato por email", desc: "En minutos te llega el link con todos los videos. Abrís y empezás hoy mismo." },
+            { step: "3", title: "Aprendés y empezás a cobrar", desc: "Avanzás a tu ritmo. En pocas semanas ya podés atender tu primera clienta." },
+          ].map((item) => (
+            <div key={item.step} className="flex items-start gap-3 bg-white rounded-xl p-4 border border-pink-100">
+              <div className="w-8 h-8 rounded-full bg-pink-500 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                {item.step}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800">{item.title}</p>
+                <p className="text-sm text-gray-500">{item.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -221,12 +260,18 @@ export default function Step06Sales() {
         </div>
 
         <div className="space-y-2 bg-white/10 rounded-2xl p-4">
-          {DELIVERABLES.map((d) => (
-            <div key={d.name} className="flex items-center gap-2 text-sm">
-              <span className="text-green-300">✓</span>
-              <span>{d.name}</span>
-            </div>
-          ))}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-green-300">✓</span>
+            <span>13 módulos en video HD · Acceso de por vida</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-green-300">✓</span>
+            <span>4 técnicas: cejas, lifting, pelo a pelo, volumen ruso</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-green-300">✓</span>
+            <span>Módulo de marketing para conseguir clientas</span>
+          </div>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-green-300">✓</span>
             <span>Certificado digital al completar</span>

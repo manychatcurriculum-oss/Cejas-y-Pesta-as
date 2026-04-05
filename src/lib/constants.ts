@@ -14,18 +14,27 @@ export const STATS = [
 export const DELIVERABLES = [
   {
     name: "13 Módulos en Video — Acceso de por vida",
-    description: "Cejas perfectas, lifting, pestañas pelo a pelo y volumen ruso en video HD",
+    description: "Todos los videos grabados en HD. Los abrís cuando querés, desde tu celular o computadora, sin fecha de vencimiento.",
     driveUrl: "REEMPLAZAR_DRIVE_VIDEOS",
     isMain: true,
     isPremium: false,
   },
-  {
-    name: "Manual Completo PDF Descargable",
-    description: "Guía de referencia con todo el contenido del curso para tener siempre a mano",
-    driveUrl: "REEMPLAZAR_DRIVE_MANUAL",
-    isMain: false,
-    isPremium: false,
-  },
+];
+
+export const CURRICULUM = [
+  { icon: "✏️", title: "Diseño y mapeo de cejas", desc: "Técnica de medición proporcional para definir la forma ideal según el rostro de cada clienta" },
+  { icon: "🪡", title: "Depilación con hilo", desc: "El método más preciso para perfilar cejas. Paso a paso desde cero hasta dejarlo perfecto" },
+  { icon: "🕯️", title: "Depilación con cera", desc: "Cómo preparar la piel, aplicar y retirar sin irritar. Para clientas que prefieren cera" },
+  { icon: "🖌️", title: "Pigmentación y tinte de cejas", desc: "Cómo elegir el tono correcto y aplicarlo para dar volumen y profundidad natural" },
+  { icon: "✨", title: "Laminado de cejas", desc: "El servicio más pedido en 2024. Cómo lograr el efecto peinado que dura semanas" },
+  { icon: "💎", title: "Lifting de pestañas", desc: "Técnica completa para rizar y levantar la pestaña natural. Sin extensiones, resultado wow" },
+  { icon: "🌸", title: "Tinte de pestañas", desc: "Para oscurecer y definir la pestaña natural. Complemento perfecto del lifting" },
+  { icon: "🪷", title: "Extensiones pelo a pelo (classic)", desc: "La base del trabajo profesional. Extensión fibra a fibra para un resultado natural y duradero" },
+  { icon: "🔥", title: "Volumen ruso", desc: "La técnica premium. Abanicos de 3D a 6D para un resultado dramático y de alta gama" },
+  { icon: "🧴", title: "Preparación de la piel y cuidado", desc: "Limpieza, primers y aftercare. Lo que separa a una profesional de una amateur" },
+  { icon: "🛍️", title: "Materiales y proveedores", desc: "Qué herramientas necesitás, dónde comprar en Argentina y cómo armar tu kit de inicio" },
+  { icon: "📸", title: "Cómo fotografiar tu trabajo", desc: "Iluminación, ángulos y edición básica para que tus fotos vendan solas en Instagram" },
+  { icon: "📲", title: "Marketing y conseguir clientas", desc: "Cómo armar tu perfil, qué publicar, cómo fijar precios y llenar tu agenda desde el primer mes" },
 ];
 
 export const BENEFITS = [

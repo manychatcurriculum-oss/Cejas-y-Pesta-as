@@ -29,12 +29,12 @@ export const DELIVERABLES = [
 ];
 
 export const BENEFITS = [
-  { icon: "💰", title: "Generá ingresos desde casa", description: "Aprendé técnicas que te permiten cobrar por sesión desde el primer mes" },
-  { icon: "⏱️", title: "A tu ritmo, sin horarios", description: "Acceso de por vida — avanzás cuando querés, sin fechas límite" },
-  { icon: "🎯", title: "Para principiantes y avanzadas", description: "Empezás de cero o perfeccionás lo que ya sabés" },
-  { icon: "📱", title: "100% online desde tu casa", description: "Desde tu celular o computadora, sin salir de casa" },
-  { icon: "✂️", title: "4 técnicas de tendencia mundial", description: "Cejas, lifting, pestañas pelo a pelo y volumen ruso — lo más pedido hoy" },
-  { icon: "📋", title: "Marketing para tu negocio", description: "Módulo completo para que sepas cómo vender tus servicios y conseguir clientas" },
+  { icon: "💰", title: "Técnicas que se cobran caro", description: "El volumen ruso, lifting y pestañas pelo a pelo tienen alta demanda y se pagan muy bien en Argentina" },
+  { icon: "🏠", title: "Trabajás desde tu casa", description: "Sin alquilar local, sin jefe, sin horario fijo. Montás tu espacio y empezás" },
+  { icon: "⚡", title: "Empezás de cero y en semanas ya cobrás", description: "Alumnas nuestras atendieron su primera clienta antes del mes de empezar el curso" },
+  { icon: "📱", title: "Lo hacés desde el celular", description: "Los videos son HD y están optimizados para móvil. Aprendés donde quieras, cuando quieras" },
+  { icon: "✂️", title: "4 técnicas en un solo curso", description: "Diseño de cejas, lifting de pestañas, pelo a pelo y volumen ruso — el menú completo" },
+  { icon: "📋", title: "Te enseñamos a conseguir clientas", description: "Hay un módulo específico de marketing para que no te quedes sin trabajo una vez que aprendés" },
 ];
 
 export const TESTIMONIALS = [
@@ -84,36 +84,32 @@ export const TESTIMONIALS = [
 
 export const FAQ_ITEMS = [
   {
-    question: "¿Necesito experiencia previa para tomar el curso?",
-    answer: "No, está diseñado tanto para principiantes absolutas como para personas con conocimientos previos. Empezás desde los fundamentos.",
+    question: "¿Necesito experiencia previa?",
+    answer: "No. Empezás desde cero. El curso arranca con los fundamentos y avanza paso a paso. También sirve si ya tenés algo de experiencia y querés profesionalizarte.",
   },
   {
-    question: "¿Cómo accedo a los videos?",
-    answer: "Apenas confirmado el pago, te llega un email con el link de acceso. Es de por vida, sin vencimiento.",
+    question: "¿En cuánto tiempo puedo empezar a cobrar?",
+    answer: "Depende de vos, pero hay alumnas que atendieron su primera clienta antes del mes. Lo más rápido es practicar en amigas o familiares mientras avanzás con los módulos.",
   },
   {
-    question: "¿Qué materiales necesito para practicar?",
-    answer: "En cada módulo se detallan los materiales y proveedores. La inversión inicial es mínima y la recuperás rápido con tus primeras clientas.",
+    question: "¿Cómo accedo al curso?",
+    answer: "Apenas confirmado el pago, te llega un email con el link. Acceso inmediato, de por vida, sin vencimiento.",
   },
   {
-    question: "¿Puedo aprender a mi propio ritmo?",
-    answer: "Sí, 100%. No hay fechas límite ni clases en vivo. Avanzás cuando querés, desde donde estés.",
+    question: "¿Qué materiales necesito comprar aparte?",
+    answer: "Cada módulo detalla los materiales necesarios y dónde conseguirlos. La inversión es mínima y la recuperás con tus primeras clientas.",
   },
   {
     question: "¿Tiene certificado?",
-    answer: "Sí, al completar el curso recibís un certificado digital que podés mostrar a tus clientas.",
+    answer: "Sí. Al completar el curso recibís un certificado digital que podés mostrar a tus clientas y usar en tus redes.",
   },
   {
-    question: "¿Qué pasa si no me gusta?",
-    answer: "Tenés 30 días de garantía total. Si por cualquier motivo no quedás conforme, te devolvemos el 100% del dinero sin preguntas.",
-  },
-  {
-    question: "¿Se puede hacer desde el celular?",
-    answer: "Sí, los videos están optimizados para verse desde cualquier dispositivo — celular, tablet o computadora.",
+    question: "¿Y si no me convence?",
+    answer: "Tenés 30 días de garantía. Si por cualquier motivo no quedás conforme, te devolvemos el 100% del dinero. Sin preguntas, sin vueltas.",
   },
   {
     question: "¿El pago es seguro?",
-    answer: "Sí, el pago se procesa a través de GalioPay, plataforma segura y certificada para pagos en Argentina 🇦🇷.",
+    answer: "Sí, pagás por GalioPay, plataforma de pagos certificada para Argentina 🇦🇷. Recibís el comprobante al instante.",
   },
 ];
 

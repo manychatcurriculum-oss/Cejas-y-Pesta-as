@@ -9,19 +9,21 @@ import StepWrapper from "./StepWrapper";
 import Step01Hero from "./steps/Step01Hero";
 import Step02Name from "./steps/Step02Name";
 import Step03Level from "./steps/Step03Level";
-import Step04Email from "./steps/Step04Email";
-import Step05Loading from "./steps/Step05Loading";
-import Step06Sales from "./steps/Step06Sales";
+import Step04Goal from "./steps/Step04Goal";
+import Step05Email from "./steps/Step04Email";
+import Step06Loading from "./steps/Step05Loading";
+import Step07Sales from "./steps/Step06Sales";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 const stepComponents: Record<number, React.ComponentType> = {
   1: Step01Hero,
   2: Step02Name,
   3: Step03Level,
-  4: Step04Email,
-  5: Step05Loading,
-  6: Step06Sales,
+  4: Step04Goal,
+  5: Step05Email,
+  6: Step06Loading,
+  7: Step07Sales,
 };
 
 export default function QuizShell() {

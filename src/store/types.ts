@@ -1,6 +1,7 @@
 export interface QuizAnswers {
   name: string;
   level: string; // "beginner" | "intermediate" | "professional"
+  goal: string;  // "emprender" | "uso_personal"
   email: string;
 }
 

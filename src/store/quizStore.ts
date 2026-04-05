@@ -5,6 +5,7 @@ import type { QuizState } from "./types";
 const initialAnswers = {
   name: "",
   level: "",
+  goal: "",
   email: "",
 };
 
@@ -17,7 +18,7 @@ export const useQuizStore = create<QuizState>()(
 
       nextStep: () => {
         const { currentStep } = get();
-        if (currentStep < 6) {
+        if (currentStep < 7) {
           set({ currentStep: currentStep + 1 });
         }
       },

@@ -24,6 +24,11 @@ const LEVEL_LABEL: Record<string, string> = {
   professional: "Trabaja en belleza",
 };
 
+const GOAL_LABEL: Record<string, string> = {
+  emprender: "Emprender",
+  uso_personal: "Uso personal",
+};
+
 export default function QuizTable({ quizzes, total, page, totalPages, onPageChange }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -41,6 +46,7 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
               <th className="px-4 py-3 font-medium">Nombre</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Nivel</th>
+              <th className="px-4 py-3 font-medium">Objetivo</th>
               <th className="px-4 py-3 font-medium">Estado</th>
               <th className="px-4 py-3 font-medium"></th>
             </tr>
@@ -59,6 +65,7 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
                   <td className="px-4 py-3 text-white font-medium">{q.answers.name || "—"}</td>
                   <td className="px-4 py-3">{q.answers.email || "—"}</td>
                   <td className="px-4 py-3">{LEVEL_LABEL[q.answers.level] || q.answers.level || "—"}</td>
+                  <td className="px-4 py-3">{GOAL_LABEL[q.answers.goal] || q.answers.goal || "—"}</td>
                   <td className="px-4 py-3">
                     {q.status === "checkout" ? (
                       <span className="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">🛒 Checkout</span>
@@ -71,8 +78,8 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
 
                 {expandedId === q.id && (
                   <tr key={`${q.id}-detail`} className="bg-gray-800/30">
-                    <td colSpan={6} className="px-4 py-4">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                    <td colSpan={7} className="px-4 py-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                         <div>
                           <span className="text-gray-500">Nombre: </span>
                           <span className="text-gray-200">{q.answers.name || "—"}</span>
@@ -84,6 +91,10 @@ export default function QuizTable({ quizzes, total, page, totalPages, onPageChan
                         <div>
                           <span className="text-gray-500">Nivel: </span>
                           <span className="text-gray-200">{LEVEL_LABEL[q.answers.level] || q.answers.level || "—"}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Objetivo: </span>
+                          <span className="text-gray-200">{GOAL_LABEL[q.answers.goal] || q.answers.goal || "—"}</span>
                         </div>
                       </div>
                     </td>

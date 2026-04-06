@@ -16,29 +16,26 @@ function formatMoney(amount: number, prefix = "$"): string {
   return `${prefix}${amount.toLocaleString("es-AR")}`;
 }
 
-const PRECIO_NETO = 3680;
-const COTIZACION_REAL = 290;
+const PRECIO_NETO = 4900;
 
 export default function OverviewCards({ totalQuizzes, totalCheckouts, totalSales, conversionRate, totalRevenue }: Props) {
-  const [adsReais, setAdsReais] = useState<string>("");
+  const [adsARS, setAdsARS] = useState<string>("");
 
-  // Persistir el valor en localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("admin-ads-reais");
-    if (saved) setAdsReais(saved);
+    const saved = localStorage.getItem("admin-ads-ars");
+    if (saved) setAdsARS(saved);
   }, []);
 
   function handleAdsChange(val: string) {
-    setAdsReais(val);
-    localStorage.setItem("admin-ads-reais", val);
+    setAdsARS(val);
+    localStorage.setItem("admin-ads-ars", val);
   }
 
   const facturacion = totalSales * PRECIO_NETO;
-  const adsNum = parseFloat(adsReais) || 0;
-  const adsARS = adsNum * COTIZACION_REAL;
-  const lucro = facturacion - adsARS;
-  const roas = adsARS > 0 ? facturacion / adsARS : null;
-  const costoPorVenta = totalSales > 0 && adsARS > 0 ? adsARS / totalSales : null;
+  const adsNum = parseFloat(adsARS) || 0;
+  const lucro = facturacion - adsNum;
+  const roas = adsNum > 0 ? facturacion / adsNum : null;
+  const costoPorVenta = totalSales > 0 && adsNum > 0 ? adsNum / totalSales : null;
 
   const topCards = [
     { label: "Quizzes", icon: "📋", value: totalQuizzes.toLocaleString("es-AR"), sub: null },
@@ -46,7 +43,7 @@ export default function OverviewCards({ totalQuizzes, totalCheckouts, totalSales
     { label: "Ventas", icon: "💰", value: totalSales.toLocaleString("es-AR"), sub: null },
     { label: "Conversión", icon: "📈", value: `${conversionRate}%`, sub: null },
     { label: "Ingresos", icon: "💵", value: formatMoney(totalRevenue), sub: null },
-    { label: "Facturación neta", icon: "🏦", value: formatMoney(facturacion), sub: `R$${(facturacion / COTIZACION_REAL).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · ${totalSales} × $3.680` },
+    { label: "Facturación neta", icon: "🏦", value: formatMoney(facturacion), sub: `${totalSales} × $4.900` },
   ];
 
   return (
@@ -73,24 +70,19 @@ export default function OverviewCards({ totalQuizzes, totalCheckouts, totalSales
         </div>
 
         <div className="flex items-center gap-3 mb-5">
-          <label className="text-gray-400 text-sm whitespace-nowrap">Gasto en R$:</label>
+          <label className="text-gray-400 text-sm whitespace-nowrap">Inversión en ARS:</label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">R$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">$</span>
             <input
               type="number"
               min="0"
-              step="0.01"
-              value={adsReais}
+              step="1"
+              value={adsARS}
               onChange={(e) => handleAdsChange(e.target.value)}
-              placeholder="0,00"
-              className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-white text-sm w-40 focus:outline-none focus:border-pink-500 transition-colors"
+              placeholder="0"
+              className="bg-gray-800 border border-gray-700 rounded-lg pl-8 pr-4 py-2 text-white text-sm w-40 focus:outline-none focus:border-pink-500 transition-colors"
             />
           </div>
-          {adsNum > 0 && (
-            <span className="text-gray-500 text-sm">
-              = {formatMoney(adsARS)} ARS <span className="text-gray-600">(× $290)</span>
-            </span>
-          )}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -98,28 +90,24 @@ export default function OverviewCards({ totalQuizzes, totalCheckouts, totalSales
           <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-base">💸</span>
-              <span className="text-gray-400 text-xs">Gasto en ARS</span>
+              <span className="text-gray-400 text-xs">Inversión ARS</span>
             </div>
             <p className="text-xl font-bold text-white">
-              {adsARS > 0 ? formatMoney(adsARS) : <span className="text-gray-600">—</span>}
+              {adsNum > 0 ? formatMoney(adsNum) : <span className="text-gray-600">—</span>}
             </p>
-            {adsNum > 0 && <p className="text-xs text-gray-500 mt-1">R${adsNum.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>}
           </div>
 
           {/* Lucro */}
-          <div className={`bg-gray-800 rounded-xl p-4 border ${lucro >= 0 && adsARS > 0 ? "border-green-800" : adsARS > 0 ? "border-red-800" : "border-gray-700"}`}>
+          <div className={`bg-gray-800 rounded-xl p-4 border ${lucro >= 0 && adsNum > 0 ? "border-green-800" : adsNum > 0 ? "border-red-800" : "border-gray-700"}`}>
             <div className="flex items-center gap-2 mb-2">
               <span className="text-base">📊</span>
               <span className="text-gray-400 text-xs">Lucro neto</span>
             </div>
-            <p className={`text-xl font-bold ${adsARS > 0 ? (lucro >= 0 ? "text-green-400" : "text-red-400") : "text-white"}`}>
-              {adsARS > 0 ? formatMoney(Math.abs(lucro)) : <span className="text-gray-600">—</span>}
+            <p className={`text-xl font-bold ${adsNum > 0 ? (lucro >= 0 ? "text-green-400" : "text-red-400") : "text-white"}`}>
+              {adsNum > 0 ? formatMoney(Math.abs(lucro)) : <span className="text-gray-600">—</span>}
             </p>
-            {adsARS > 0 && (
-              <p className="text-xs text-yellow-400 mt-1">
-                R${(Math.abs(lucro) / COTIZACION_REAL).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                {" · "}<span className="text-gray-500">{lucro >= 0 ? "ganancia" : "pérdida"}</span>
-              </p>
+            {adsNum > 0 && (
+              <p className="text-xs text-gray-500 mt-1">{lucro >= 0 ? "ganancia" : "pérdida"}</p>
             )}
           </div>
 
@@ -148,11 +136,6 @@ export default function OverviewCards({ totalQuizzes, totalCheckouts, totalSales
             <p className="text-xl font-bold text-white">
               {costoPorVenta !== null ? formatMoney(costoPorVenta) : <span className="text-gray-600">—</span>}
             </p>
-            {costoPorVenta !== null && (
-              <p className="text-xs text-yellow-400 mt-1">
-                R${(costoPorVenta / COTIZACION_REAL).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            )}
           </div>
         </div>
 
@@ -183,7 +166,7 @@ export default function OverviewCards({ totalQuizzes, totalCheckouts, totalSales
           } else {
             bg = "bg-red-950/30"; border = "border-red-700"; dot = "bg-red-400";
             titulo = "Pausá los ads — estás perdiendo dinero";
-            consejo = `ROAS ${roas.toFixed(2)}x — estás gastando más de lo que facturás. Cada real invertido genera menos de R$1 de retorno.`;
+            consejo = `ROAS ${roas.toFixed(2)}x — estás gastando más de lo que facturás. Cada peso invertido genera menos de $1 de retorno.`;
             detalle = "Pausá la campaña, analizá qué cambió (creativo, público, oferta) y relanzá con ajustes concretos.";
           }
 

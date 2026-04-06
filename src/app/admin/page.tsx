@@ -5,13 +5,12 @@ import LoginForm from "@/components/admin/LoginForm";
 import OverviewCards from "@/components/admin/OverviewCards";
 import RevenueChart from "@/components/admin/RevenueChart";
 import QuizTable from "@/components/admin/QuizTable";
-import PaymentTable from "@/components/admin/PaymentTable";
 import PatternAnalysis from "@/components/admin/PatternAnalysis";
 import DateRangePicker from "@/components/admin/DateRangePicker";
 import GalioPayTable from "@/components/admin/GalioPayTable";
 import AdsLog from "@/components/admin/AdsLog";
 
-type Tab = "resumen" | "quizzes" | "ventas" | "galiopay" | "patrones" | "ads";
+type Tab = "resumen" | "galiopay" | "leads" | "analisis" | "ads";
 
 interface Stats {
   totalQuizzes: number;
@@ -30,7 +29,6 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("resumen");
   const [stats, setStats] = useState<Stats | null>(null);
   const [quizData, setQuizData] = useState<{ quizzes: unknown[]; total: number; page: number; totalPages: number } | null>(null);
-  const [paymentData, setPaymentData] = useState<{ payments: unknown[]; total: number; page: number; totalPages: number } | null>(null);
   const [galioData, setGalioData] = useState<{ orders: unknown[]; total: number; page: number; totalPages: number; totalRevenue: number; totalPaid: number } | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -84,20 +82,8 @@ export default function AdminPage() {
   }, [password, dateFrom, dateTo, headers, dateParams]);
 
   useEffect(() => {
-    if (tab === "quizzes") fetchQuizzes(1);
+    if (tab === "leads") fetchQuizzes(1);
   }, [tab, fetchQuizzes]);
-
-  const fetchPayments = useCallback((page: number) => {
-    if (!password) return;
-    fetch(`/api/admin/payments?page=${page}&${dateParams()}`, { headers: headers() })
-      .then((r) => r.json())
-      .then(setPaymentData)
-      .catch(console.error);
-  }, [password, dateFrom, dateTo, headers, dateParams]);
-
-  useEffect(() => {
-    if (tab === "ventas") fetchPayments(1);
-  }, [tab, fetchPayments]);
 
   const fetchGalioOrders = useCallback((page: number) => {
     if (!password) return;
@@ -120,18 +106,17 @@ export default function AdminPage() {
   if (!password) return <LoginForm onLogin={handleLogin} />;
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "resumen", label: "Resumen" },
-    { key: "quizzes", label: "Quizzes" },
-    { key: "ventas", label: "Ventas TN" },
-    { key: "galiopay", label: "GalioPay 💳" },
-    { key: "patrones", label: "Patrones" },
-    { key: "ads", label: "Ads 📢" },
+    { key: "resumen",  label: "Resumen" },
+    { key: "galiopay", label: "Ventas GalioPay 💳" },
+    { key: "leads",    label: "Leads / Quizzes" },
+    { key: "analisis", label: "Análisis" },
+    { key: "ads",      label: "Ads 📢" },
   ];
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-white">Gelatina Fit Admin</h1>
+        <h1 className="text-xl font-bold text-white">Cejas & Pestañas Admin</h1>
         <button onClick={handleLogout} className="text-gray-400 hover:text-white text-sm transition-colors">
           Cerrar sesión
         </button>
@@ -195,15 +180,11 @@ export default function AdminPage() {
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
               <h3 className="text-white font-semibold mb-3">Últimas ventas</h3>
               <div className="space-y-2">
-                {(stats.recentPayments as Array<{ id: number; transaction_amount: number; date_approved: string; source?: string }>).map((p) => (
+                {(stats.recentPayments as Array<{ id: number; transaction_amount: number; date_approved: string }>).map((p) => (
                   <div key={p.id} className="flex justify-between items-center text-sm gap-2">
                     <div className="flex items-center gap-2">
                       <span className="text-gray-300 font-semibold">${p.transaction_amount?.toLocaleString("es-AR")}</span>
-                      {p.source === "GalioPay" ? (
-                        <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">GP</span>
-                      ) : (
-                        <span className="bg-gray-700 text-gray-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">TN</span>
-                      )}
+                      <span className="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">GP</span>
                     </div>
                     <span className="text-gray-500 shrink-0">
                       {p.date_approved ? new Date(p.date_approved).toLocaleString("es-AR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Argentina/Buenos_Aires" }) : "—"}
@@ -215,14 +196,6 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-      )}
-
-      {tab === "quizzes" && quizData && (
-        <QuizTable quizzes={quizData.quizzes as never[]} total={quizData.total} page={quizData.page} totalPages={quizData.totalPages} onPageChange={fetchQuizzes} />
-      )}
-
-      {tab === "ventas" && paymentData && (
-        <PaymentTable payments={paymentData.payments as never[]} total={paymentData.total} page={paymentData.page} totalPages={paymentData.totalPages} onPageChange={fetchPayments} />
       )}
 
       {tab === "galiopay" && (
@@ -238,7 +211,11 @@ export default function AdminPage() {
         />
       )}
 
-      {tab === "patrones" && stats && (
+      {tab === "leads" && quizData && (
+        <QuizTable quizzes={quizData.quizzes as never[]} total={quizData.total} page={quizData.page} totalPages={quizData.totalPages} onPageChange={fetchQuizzes} />
+      )}
+
+      {tab === "analisis" && stats && (
         <PatternAnalysis patterns={stats.patterns} totalQuizzes={stats.totalQuizzes} />
       )}
 

@@ -1,20 +1,31 @@
 "use client";
 
-import { LABEL_MAP } from "@/lib/label-map";
-
 interface Props {
   patterns: Record<string, Record<string, number>>;
   totalQuizzes: number;
 }
 
-const sectionLabels: Record<string, string> = {
-  age: "Edad",
-  bodyType: "Tipo de cuerpo",
-  barriers: "Obstáculos",
-  goals: "Objetivos",
-  dailyRoutine: "Rutina diaria",
-  waterIntake: "Consumo de agua",
-};
+const SECTION_CONFIG = [
+  {
+    key: "level",
+    title: "Nivel de experiencia",
+    labelMap: {
+      beginner: "Principiante",
+      intermediate: "Con experiencia",
+      professional: "Trabaja en belleza",
+    } as Record<string, string>,
+    color: "bg-pink-500",
+  },
+  {
+    key: "goal",
+    title: "Objetivo principal",
+    labelMap: {
+      emprender: "Emprender / ganar dinero",
+      uso_personal: "Uso personal",
+    } as Record<string, string>,
+    color: "bg-purple-500",
+  },
+];
 
 export default function PatternAnalysis({ patterns, totalQuizzes }: Props) {
   if (totalQuizzes === 0) {
@@ -27,7 +38,7 @@ export default function PatternAnalysis({ patterns, totalQuizzes }: Props) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {Object.entries(sectionLabels).map(([key, title]) => {
+      {SECTION_CONFIG.map(({ key, title, labelMap, color }) => {
         const data = patterns[key] || {};
         const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
         const max = entries[0]?.[1] || 1;
@@ -35,9 +46,9 @@ export default function PatternAnalysis({ patterns, totalQuizzes }: Props) {
         return (
           <div key={key} className="bg-gray-900 rounded-xl border border-gray-800 p-5">
             <h4 className="text-white font-semibold mb-3">{title}</h4>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {entries.map(([value, count]) => {
-                const label = LABEL_MAP[key]?.[value] || value;
+                const label = labelMap[value] || value;
                 const pct = ((count / totalQuizzes) * 100).toFixed(0);
                 const width = (count / max) * 100;
 
@@ -49,7 +60,7 @@ export default function PatternAnalysis({ patterns, totalQuizzes }: Props) {
                     </div>
                     <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-pink-500 rounded-full transition-all"
+                        className={`h-full ${color} rounded-full transition-all`}
                         style={{ width: `${width}%` }}
                       />
                     </div>
@@ -57,7 +68,7 @@ export default function PatternAnalysis({ patterns, totalQuizzes }: Props) {
                 );
               })}
               {entries.length === 0 && (
-                <p className="text-gray-500 text-sm">Sin datos</p>
+                <p className="text-gray-500 text-sm">Sin datos aún</p>
               )}
             </div>
           </div>

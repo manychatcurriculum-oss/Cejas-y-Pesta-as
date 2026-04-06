@@ -95,11 +95,13 @@ export async function GET(request: Request) {
     // Pattern analysis from quizzes
     const patterns: Record<string, Record<string, number>> = {
       level: {},
+      goal: {},
     };
 
     for (const q of quizzes) {
       const a = q.answers;
       if (a.level) patterns.level[a.level] = (patterns.level[a.level] || 0) + 1;
+      if (a.goal)  patterns.goal[a.goal]   = (patterns.goal[a.goal]   || 0) + 1;
     }
 
     // Fetch checkout events to tag recent quizzes

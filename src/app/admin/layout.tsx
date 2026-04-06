@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin - Gelatina Fit",
+  title: "Admin - Cejas & Pestañas",
   robots: { index: false, follow: false },
 };
 

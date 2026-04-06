@@ -34,7 +34,7 @@ export default function LoginForm({ onLogin }: { onLogin: (password: string) => 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <form onSubmit={handleSubmit} className="bg-gray-900 rounded-2xl p-8 w-full max-w-sm shadow-xl">
-        <h1 className="text-2xl font-bold text-white mb-2">Gelatina Fit</h1>
+        <h1 className="text-2xl font-bold text-white mb-2">Cejas & Pestañas</h1>
         <p className="text-gray-400 mb-6 text-sm">Panel de administración</p>
 
         <input

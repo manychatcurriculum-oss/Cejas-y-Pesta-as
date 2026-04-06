@@ -13,10 +13,17 @@ export const STATS = [
 
 export const DELIVERABLES = [
   {
-    name: "13 Módulos en Video — Acceso de por vida",
-    description: "Todos los videos grabados en HD. Los abrís cuando querés, desde tu celular o computadora, sin fecha de vencimiento.",
-    driveUrl: "REEMPLAZAR_DRIVE_VIDEOS",
+    name: "El Arte de Diseñar Cejas como Negocio Completo",
+    description: "Cejas perfectas, diseño, pigmentación, laminado y más. Acceso de por vida en HD.",
+    driveUrl: "https://drive.google.com/drive/folders/1bIkgKbog7Pfk7FyjTy9u0qNUGcv6yQ0E?usp=sharing",
     isMain: true,
+    isPremium: false,
+  },
+  {
+    name: "Cejas y Pestañas Pelo a Pelo",
+    description: "Técnica completa de extensiones pelo a pelo y volumen ruso. Videos en HD, acceso de por vida.",
+    driveUrl: "https://drive.google.com/drive/folders/1XsgyWv3JodSZOa4OY67jGOOpc6S9uyc7?usp=sharing",
+    isMain: false,
     isPremium: false,
   },
 ];

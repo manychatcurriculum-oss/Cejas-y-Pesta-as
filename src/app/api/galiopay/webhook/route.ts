@@ -18,7 +18,7 @@ async function sendFBPurchaseEvent(opts: {
 
   try {
     const res = await fetch(
-      "https://graph.facebook.com/v19.0/REEMPLAZAR_FB_PIXEL_ID/events",
+      "https://graph.facebook.com/v19.0/801268293042216/events",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

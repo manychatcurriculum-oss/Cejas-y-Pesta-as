@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
-        {/* META PIXEL — reemplazar REEMPLAZAR_FB_PIXEL_ID con el nuevo Pixel ID */}
+        {/* META PIXEL — reemplazar 801268293042216 con el nuevo Pixel ID */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
@@ -42,7 +42,7 @@ export default function RootLayout({
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', 'REEMPLAZAR_FB_PIXEL_ID');
+            fbq('init', '801268293042216');
             fbq('track', 'PageView');
           `}
         </Script>
@@ -65,7 +65,7 @@ export default function RootLayout({
             height="1"
             width="1"
             style={{ display: "none" }}
-            src="https://www.facebook.com/tr?id=REEMPLAZAR_FB_PIXEL_ID&ev=PageView&noscript=1"
+            src="https://www.facebook.com/tr?id=801268293042216&ev=PageView&noscript=1"
             alt=""
           />
         </noscript>
